@@ -1,6 +1,6 @@
 # Server JSX components
 
-[![Actions Status](https://github.com/dm-kamaev/server-component/workflows/Build/badge.svg)](https://github.com/dm-kamaev/server-component/actions) ![Coverage](https://github.com/dm-kamaev/server-component/blob/master/coverage/badge-statements.svg)
+[![Actions Status](https://github.com/dm-kamaev/server-jsx-component/workflows/Build/badge.svg)](https://github.com/dm-kamaev/server-jsx-component/actions) ![Coverage](https://github.com/dm-kamaev/server-jsx-component/blob/master/coverage/badge-statements.svg)
 
 ### Install
 ```sh
