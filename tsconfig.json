@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es2021",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/jsx/jsx.d.ts"
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictPropertyInitialization": false,
+    "allowJs": false,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist/",
+    "jsx": "react",
+    "jsxFactory": "h"
+  },
+  "exclude": [
+    "node_modules",
+  ]
+}
