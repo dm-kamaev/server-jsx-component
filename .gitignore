@@ -2,6 +2,7 @@
 
 dist/
 node_modules
-*.svg
 
+
+/coverage/*
 !/coverage/badge-statements.svg
