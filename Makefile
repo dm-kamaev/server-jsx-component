@@ -14,7 +14,7 @@ build:
 	rm -rf dist;
 	npx tsc
 
-publish: build
+publish: test_badge ts_check build
 	npm publish --access public
 
 ci: ts_check test_coverage build

@@ -1,3 +1,5 @@
+import { JSX } from '../jsx.type';
+
 const replacementText: { [name: string]: string } = {
   '&': '&amp;',
   '"': '&quot;',

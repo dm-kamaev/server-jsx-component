@@ -1,4 +1,5 @@
-import tpl from '../../../tpl';
+import { JSX } from '../jsx.type';
+import tpl from '../tpl';
 
 export default function expandChildren(children: JSX.Children): JSX.Children {
   let output: JSX.Children = [];

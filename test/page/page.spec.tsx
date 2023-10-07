@@ -1,5 +1,5 @@
-import { getJsxFactory, IgnisComp, IgnisHtmlPage, render } from '../../src/index';
-import { noEscape } from '../../src/jsx/jsx-factory/lib/escape';
+import { getJsxFactory, IgnisComp, IgnisHtmlPage, render, JSX } from '../../src/index';
+import { noEscape } from '../../src/jsx/escape';
 
 describe('[IgnisHtmlPage]', () => {
 
@@ -370,7 +370,6 @@ describe('[IgnisHtmlPage]', () => {
     );
 
     const html = render.toHtmlPage(page, { escape: true });
-    console.log(html);
-    // expect(html).toEqual(`<!DOCTYPE html><html lang="EN"><head><title>Title from method</title><meta name="description" content="Description from method"><meta name="keywords" content="Keywords from method"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="http://bulma-calendar/dist/css/bulma-calendar.min.css"/><style>.global-title{color:#333;font-size:24px;}</style><script>alert("Alert on page in header");console.log(&#39;I am code in header &lt;script&gt;&lt;/script&gt;);</script></head><body>123<div class="danger">Example<div id="23" data-i-inder="0"><p>Id: 23</p><p>Name: John</p><p>Last Name: Parker</p></div><div id="24" data-i-inder="1"><p>Id: 23</p><p>Name: Maddison</p></div></div><script>alert('Alert on page in footer');console.log(&#39;I am code in footer &lt;script&gt;&lt;/script&gt;&#39;);</script><script>document.querySelector("#page").innerHTML = "none";</script><script>requestAnimationFrame(function () { console.log("requestAnimationFrame"); });</script></body></html>`);
+    expect(html).toEqual(`<!DOCTYPE html><html lang="EN"><head><title>Title from method</title><meta name="description" content="Description from method"><meta name="keywords" content="Keywords from method"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="http://bulma-calendar/dist/css/bulma-calendar.min.css"/><style>.global-title{color:#333;font-size:24px;}</style><script>alert("Alert on page in header");console.log(&#39;I am code in header &lt;script&gt;&lt;/script&gt;);</script></head><body>123<div class="danger">Example<p><div>Call function</div></p><div id="23" data-i-inder="0"><p class="title big">Id: 23</p><p>Name: John</p><p>Last Name: Parker</p><p>is 2 or 3</p><p>is default</p><p>User has last Name</p></div><div id="24" data-i-inder="1"><p class="title big">Id: 23</p><p>Name: Maddison</p><p>is 2 or 3</p><p>is default</p><p>User hasn&#39;t last name</p></div></div><script>alert('Alert on page in footer');console.log(&#39;I am code in footer &lt;script&gt;&lt;/script&gt;&#39;);</script><script>document.querySelector("#page").innerHTML = "none";</script><script>requestAnimationFrame(function () { console.log("requestAnimationFrame"); });</script></body></html>`);
   });
 })

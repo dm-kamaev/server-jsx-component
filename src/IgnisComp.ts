@@ -4,9 +4,10 @@ import Link from './element/Link';
 import CssClass, { CssNode } from './element/CssClass';
 import CssLink from './element/CssLink';
 import tpl from './tpl';
+import { JSX } from './jsx.type';
 
 import generator, { IGenCssIdentifier } from './generator';
-import { escape, noEscape } from './jsx/jsx-factory/lib/escape';
+import { escape, noEscape } from './jsx/escape';
 
 export type Css = string | Link | CssClass;
 export type Js = string | Script | JSX.Element;

@@ -4,27 +4,12 @@ import type Link from '../element/Link';
 import Minify from '../transform/Minify';
 import format from '../transform/format';
 
-import { escape, escapeAttributes } from './jsx-factory/lib/escape';
+import { JSX, JSXElementPageWithDataForRender, JSXElementWithDataForRender } from '../jsx.type';
+
+import { escape, escapeAttributes } from './escape';
 
 
 const fragmentName = 'fragment';
-
-interface JSXElementWithDataForRender extends JSX.Element {
-  _id?: string;
-  _css?: any[];
-  _js?: (sharedData: any[]) => any[];
-  _headJs?: (sharedData: any[]) => any[];
-  _sharedData?: any;
-}
-
-interface JSXElementPageWithDataForRender extends JSXElementWithDataForRender {
-  _minify?: boolean;
-  _htmlTag?: string;
-  _head?: string[];
-  _title?: string;
-  _description?: string;
-  _keywords?: string;
-}
 
 
 export function toObject(
@@ -35,17 +20,13 @@ export function toObject(
 
   const { css, html, getHeadJs, getJs } = traverseToObject(vnode, escapeMode, context);
 
-  // console.log({ getHeadJs });
   const headJs = getHeadJs.map(el => {
-    // console.log(el.get.toString());
     return el.get(context[el.id].sharedData || []).map(convertJsInlineToString);
   }).flat();
-  // console.log({ headJs: headJs });
 
   const js = getJs.map(el => {
     return el.get(context[el.id].sharedData || []).map(convertJsInlineToString);
   }).flat();
-  // console.log({ js });
 
   return { css, html, headJs, js };
 };
@@ -69,7 +50,7 @@ function traverseToObject(
   // console.dir(vnode, { depth: 20 });
 
   const { elementName, attributes, children: _children } = vnode;
-  // console.log({ attributes });
+
   const children = escapeMode && !attributes?.noEscape ? (_children.map(item => escape(item))) : _children;
 
   if (vnode._id && !context[vnode._id]) {

@@ -1,5 +1,5 @@
 
-import { getJsxFactory, IgnisComp, render } from '../../src/index';
+import { getJsxFactory, IgnisComp, render, JSX } from '../../src/index';
 import Script from '../../src/element/Script';
 
 describe('[IgnisComp: functional component]', function () {

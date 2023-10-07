@@ -1,4 +1,5 @@
 import IgnisComp, { Js } from './IgnisComp';
+import { JSX } from './jsx.type';
 
 import { IGenCssIdentifier } from './generator';
 

@@ -1,9 +1,10 @@
-import expandChildren from './lib/expandChildren';
+import { JSX } from '../jsx.type';
+import expandChildren from './expandChildren';
 
-import IgnisComp from '../../IgnisComp';
-import { IGenCssIdentifier } from '../../generator';
+import IgnisComp from '../IgnisComp';
+import { IGenCssIdentifier } from '../generator';
 
-export const getJsxFactory = (option?: { generator?: { generatorId?: IGenCssIdentifier; generatorClassName?: IGenCssIdentifier; } }): JSX.FunctionComponent<any> | JSX.ClassComponent => {
+export default function getJsxFactory(option?: { generator?: { generatorId?: IGenCssIdentifier; generatorClassName?: IGenCssIdentifier; } }): JSX.FunctionComponent<any> | JSX.ClassComponent {
   const h = (
     elementName: JSX.ElementName,
     attributes: JSX.Attribute,

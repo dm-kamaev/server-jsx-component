@@ -1,10 +1,12 @@
 {
   "name": "@ignis-web/server-jsx-component",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "A minimalistic framework for creating reusable and encapsulated JSX view components on server side",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test",
+    "prepublishOnly": "make build"
   },
   "keywords": [
     "server component",
@@ -21,6 +23,8 @@
     "server template",
     "template",
     "template jsx",
+    "jsx to html",
+    "render jsx to html",
     "jsx",
     "server side jsx",
     "template jsx components",

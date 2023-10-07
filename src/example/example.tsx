@@ -1,10 +1,10 @@
 
-// import { getJsxFactory, toHtmlPage } from './src/vnode-parser/src';
-import { getJsxFactory, render } from './src/index';
+import { getJsxFactory, render, JSX } from '../index';
 
-import IgnisComp from './src/IgnisComp';
-import IgnisHtmlPage from './src/IgnisHtmlPage';
+import IgnisComp from '../IgnisComp';
+import IgnisHtmlPage from '../IgnisHtmlPage';
 
+// Set custom generator for css class and id of dom elements
 // import GenCssIdentifier from '@ignis-web/gen-css-identifier';
 // const generatorId = new GenCssIdentifier('1234');
 // const generatorClassName = new GenCssIdentifier('#$!');
@@ -222,5 +222,3 @@ const htmlPage: JSX.Element = (
 
 const html = render.toHtmlPage(htmlPage, { escape: true });
 console.log(html);
-// console.log(ctx);
-// console.timeEnd("Render");

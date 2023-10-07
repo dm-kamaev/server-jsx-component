@@ -1,3 +1,5 @@
+import { JSX } from "./jsx.type";
+
 type Output = JSX.Element | string | number;
 type OutputOrUndef = JSX.Element | string | number | undefined;
 

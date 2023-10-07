@@ -1,6 +1,6 @@
 // https://www.typescriptlang.org/docs/handbook/jsx.html
 
-declare namespace JSX {
+export declare namespace JSX {
   export interface IComponent<P = {}, C = JSX.Children> {
     props: Readonly<P> | P;
     children: C;
@@ -53,3 +53,20 @@ declare namespace JSX {
   }
 }
 
+
+export interface JSXElementWithDataForRender extends JSX.Element {
+  _id?: string;
+  _css?: any[];
+  _js?: (sharedData: any[]) => any[];
+  _headJs?: (sharedData: any[]) => any[];
+  _sharedData?: any;
+}
+
+export interface JSXElementPageWithDataForRender extends JSXElementWithDataForRender {
+  _minify?: boolean;
+  _htmlTag?: string;
+  _head?: string[];
+  _title?: string;
+  _description?: string;
+  _keywords?: string;
+}
