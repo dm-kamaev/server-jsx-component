@@ -61,7 +61,10 @@ class FormatDate extends IgnisComp<{ date: Date, style: string }> {
 }
 
 // second argument for turn on escape mode
-const obj = render.toObject(<FormatDate date={new Date()} style="color:red"></FormatDate>, true);
+const obj = render.toObject(
+  <FormatDate date={new Date()} style="color:red"></FormatDate>,
+  true
+);
 // <time datetime="2023-10-7" style="color:red">2023-10-7</time>
 console.log(obj.html);
 ```
@@ -69,11 +72,18 @@ IgnisComp (`IgnisComp<Props, Children, TSharedData>`) take 3 types: type of prop
 
 If you want render JSX to html not to object then you need method `toHtmlPage`:
 ```tsx
-import { getJsxFactory, render, JSX, IgnisComp, IgnisHtmlPage } from '../index';
+import {
+  getJsxFactory,
+  render,
+  JSX,
+  IgnisComp,
+  IgnisHtmlPage
+} from '@ignis-web/server-jsx-component';
 
 const h = getJsxFactory();
 
-// For components witout parent: https://react.dev/reference/react/Fragment
+// For components witout parent:
+// https://react.dev/reference/react/Fragment
 const Fragment = function (_: any, children: any[]): JSX.Element {
   return <fragment>{children}</fragment>;
 };
@@ -120,14 +130,21 @@ console.log(html);
 ### Css
 You can create css classes in components: in object style (**CssInJS**) or as simple string. Class names are generated with built-in generator:
 ```tsx
-import { getJsxFactory, render, IgnisComp } from '@ignis-web/server-jsx-component';
+import {
+  getJsxFactory,
+  render,
+  IgnisComp
+} from '@ignis-web/server-jsx-component';
 
 const h = getJsxFactory();
 
-class Book extends IgnisComp<{ id: number, author: string, name: string, year: number }> {
+class Book extends IgnisComp<
+  { id: number, author: string, name: string, year: number }
+> {
   render() {
     const { id, author, name, year } = this.props;
-    // Create css class as css in js. Class name is generated automatically
+    // Create css class as css in js.
+    // Class name is generated automatically
     const cl_book = this.css({
       color: 'red',
       // properties as camel case
@@ -143,7 +160,8 @@ class Book extends IgnisComp<{ id: number, author: string, name: string, year: n
       textTransform: 'capitalize'
     });
 
-    // Create css class as string. Class name is generated automatically
+    // Create css class as string.
+    // Class name is generated automatically
     this.css('.list-book__name{font-size: 16px}');
 
     return (
@@ -157,7 +175,10 @@ class Book extends IgnisComp<{ id: number, author: string, name: string, year: n
 }
 
 // second argument for turn on escape mode
-const obj = render.toObject(<Book id={1} author="Ivan Turgenev" name="Hunter's Notes" year={1852}></Book>, true);
+const obj = render.toObject(
+  <Book id={1} author="Ivan Turgenev" name="Hunter's Notes" year={1852}></Book>,
+  true
+);
 /*
 <div class="a">
   <p class="list-book__name">Name: Hunter&#39;s Notes</p>
@@ -196,18 +217,29 @@ You shouldn't create css inside block if/else statement:
 ### JavaScript
 With methods `headJs()` and `js()` you can add javascript code in component as JSX block code, as string, or as script tag:
 ```tsx
-import { getJsxFactory, render, IgnisComp, JSX } from '@ignis-web/server-jsx-component';
+import {
+  getJsxFactory,
+  render,
+  IgnisComp,
+  JSX
+} from '@ignis-web/server-jsx-component';
 
 const h = getJsxFactory();
 
 // Component for wrapping inline js code
-const JsCode = function (props: { escape?: boolean }, children: any[]): JSX.Element {
+const JsCode = function (
+  props: { escape?: boolean }, children: any[]
+): JSX.Element {
   // XSS escape is disable by default
   return <fragment escape={props.escape || false}>{children}</fragment>;
 };
 
-// Third parameter is type of shared data
-class Book extends IgnisComp<{ id: number; name: string; author: string; year: number }, never, { id: number }> {
+class Book extends IgnisComp<
+  { id: number; name: string; author: string; year: number },
+  never,
+  // Third parameter is type of shared data
+  { id: number }
+> {
 
   // javascript for all components Book. It will be place in <head></head>
   headJs() {
@@ -226,7 +258,8 @@ class Book extends IgnisComp<{ id: number; name: string; author: string; year: n
     ];
   }
 
-  // javascript for all components Book. It will be place before tag <body> close
+  // javascript for all components Book.
+  // It will be place before tag <body> close
   js() {
     return [
       // Inject inline code as string
@@ -238,7 +271,8 @@ class Book extends IgnisComp<{ id: number; name: string; author: string; year: n
   render() {
     const { id, name, author, year } = this.props;
 
-    // You can store shared data for specific type components(in this case Book)  which were used on page
+    // You can store shared data for specific type
+    // components (in this case Book) which were used on page
     this.setSharedData('id', id);
 
     return (
@@ -258,7 +292,14 @@ const books = [
 ];
 const obj = render.toObject(
   <div>
-    {books.map(el => <Book id={el.id} author={el.author} name={el.name} year={el.year}></Book>)}
+    {books.map(el =>
+      <Book
+        id={el.id}
+        author={el.author}
+        name={el.name}
+        year={el.year}
+      ></Book>
+    )}
   </div>,
 // second argument for turn on escape mode
   true
@@ -311,7 +352,9 @@ import { getJsxFactory, render, IgnisComp, JSX } from '@ignis-web/server-jsx-com
 const h = getJsxFactory();
 
 // Component for wrapping inline js code
-const JsCode = function (props: { escape?: boolean }, children: any[]): JSX.Element {
+const JsCode = function (
+  props: { escape?: boolean }, children: any[]
+): JSX.Element {
   return <fragment escape={props.escape || false}>{children}</fragment>;
 };
 
@@ -332,7 +375,9 @@ const FormatDate = (props: { date: Date, style: string }) => {
     headJs() {
       return [
         this.script('http://cool-timepicker.js'),
-        `console.log('Ids of TimePicker ${JSON.stringify(this.getSharedData())}');`,
+        `console.log('Ids of TimePicker ${
+          JSON.stringify(this.getSharedData())
+        }');`,
       ]
     },
     js() {
@@ -351,7 +396,10 @@ const FormatDate = (props: { date: Date, style: string }) => {
   return <time datetime={dateStr} style={style}>{dateStr}</time>;
 };
 
-const obj = render.toObject(<FormatDate date={new Date()} style="color:red"></FormatDate>, true);
+const obj = render.toObject(
+  <FormatDate date={new Date()} style="color:red"></FormatDate>,
+  true
+);
 // <time datetime="2023-10-7" style="color:red">2023-10-7</time>
 console.log(obj.html);
 /*
@@ -418,7 +466,9 @@ import { getJsxFactory, render, IgnisComp, IgnisHtmlPage, noEscape, JSX } from '
 const h = getJsxFactory();
 
 // Component for wrapping inline js code
-const JsCode = function (props: { escape?: boolean }, children: any[]): JSX.Element {
+const JsCode = function (
+  props: { escape?: boolean }, children: any[]
+): JSX.Element {
   return <fragment escape={props.escape || false}>{children}</fragment>;
 };
 // For components witout parent: https://react.dev/reference/react/Fragment
@@ -458,7 +508,8 @@ class HtmlPage extends IgnisHtmlPage<{}> {
     ];
   }
 
-  // global javascript for footer. It will be place before tag <body> close
+  // global javascript for footer.
+  // It will be place before tag <body> close
   js() {
     return [
       'console.log("I am run in end of page");',
@@ -470,7 +521,9 @@ class HtmlPage extends IgnisHtmlPage<{}> {
     const cls = this.createClassName();
 
 
-    this.css(this.cssLink('https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma-rtl.min.css'));
+    this.css(
+      this.cssLink('https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma-rtl.min.css')
+    );
     this.css('.column', { display: 'flex', borderLeft: '12px solid red' });
 
     return (
@@ -483,7 +536,12 @@ class HtmlPage extends IgnisHtmlPage<{}> {
   }
 }
 
-class ListBook extends IgnisComp<{ title: JSX.Element, books: Array<{ id: number; name: string; author: string; year: number }> }> {
+class ListBook extends IgnisComp<
+  {
+    title: JSX.Element,
+    books: Array<{ id: number; name: string; author: string; year: number }>
+  }
+> {
   render() {
     const { title, books } = this.props;
     return (
@@ -497,9 +555,14 @@ class ListBook extends IgnisComp<{ title: JSX.Element, books: Array<{ id: number
   }
 }
 
-class Book extends IgnisComp<{ data: { id: number; name: string; author: string; year: number } }, never, { id: number }> {
+class Book extends IgnisComp<
+  { data: { id: number; name: string; author: string; year: number } },
+  never,
+  { id: number }
+> {
 
-  // javascript for all components Book. It will be place in <head></head>
+  // javascript for all components Book.
+  // It will be place in <head></head>
   headJs() {
     // get all ids for components Book
     const data = this.getListSharedData();
@@ -512,7 +575,8 @@ class Book extends IgnisComp<{ data: { id: number; name: string; author: string;
     ];
   }
 
-  // javascript for all components Book. It will be place before tag <body> close
+  // javascript for all components Book.
+  // It will be place before tag <body> close
   js() {
     return [
       'console.log("I am book in footer!!!");',
@@ -538,7 +602,8 @@ class Book extends IgnisComp<{ data: { id: number; name: string; author: string;
     // create class as simple string
     this.css('.list-book__name{font-size: 16px}');
 
-    // You can store shared data for specific type components(in this case Book)  which were used on page
+    // You can store shared data for specific type
+    // components (in this case Book) which were used on page
     this.setSharedData('id', id);
 
     return (
@@ -565,9 +630,14 @@ const htmlPage: JSX.Element = (
   */
   >
     <div class="column">
-      <ListBook books={books} title={<h1>User's list books:</h1>}></ListBook>
+      <ListBook
+        books={books}
+        title={<h1>User's list books:</h1>}>
+      </ListBook>
       {/* Disable escape XSS content for value */ }
-      <div data-el-data={noEscape(JSON.stringify({ key: 'key', name: '<script></script>' }))}></div>
+      <div
+        data-el-data={noEscape(JSON.stringify({ key: 'key', name: '<script></script>' }))}
+      ></div>
     </div>
     {/* Disable escape XSS content for node */ }
     <script noEscape>
