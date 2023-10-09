@@ -296,9 +296,9 @@ describe('[IgnisComp: class component]', function () {
 
     function FuncComponent(props: { id: number }) {
       IgnisComp.setDataForFuncComponent<{ id: number }>(FuncComponent, {
-        css: [`
-        .example-description{border:1px solid red}
-      `],
+        css() {
+          this.css(`.example-description{border:1px solid red}`)
+        },
         sharedData: { id: props.id },
         headJs() {
           return [`console.log("I am functional component in head");', ' <script>alert("${JSON.stringify(this.getSharedData())}");</script>`];

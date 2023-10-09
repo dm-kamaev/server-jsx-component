@@ -10,7 +10,9 @@ describe('[IgnisComp: functional component]', function () {
 
   const FormatDate = (props: { date: Date, style: string }) => {
     IgnisComp.setDataForFuncComponent<{ id: number }>(FormatDate, {
-      css: [ '.time{color: green}'],
+      css: function () {
+        this.css('.time{color: green}');
+      },
       sharedData: { id: Date.now() },
       headJs() {
         return [

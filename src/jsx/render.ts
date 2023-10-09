@@ -1,10 +1,9 @@
 import Script from '../element/Script';
 import CssClass from '../element/CssClass';
-import type Link from '../element/Link';
 import Minify from '../transform/Minify';
 import format from '../transform/format';
 
-import { JSX, JSXElementPageWithDataForRender, JSXElementWithDataForRender } from '../jsx.type';
+import { JSX, Css, Js, JSXElementPageWithDataForRender, JSXElementWithDataForRender } from '../jsx.type';
 
 import { escape, escapeAttributes } from './escape';
 
@@ -37,9 +36,9 @@ function traverseToObject(
   escapeMode: boolean,
   context: Record<string, { sharedData: any[] }> = {},
 ) {
-  let css: Array<string | Link> = [];
-  let getJs: Array<{ id: string; get: (sharedData: any[]) => Array<string | Script | JSX.Element> }> = [];
-  let getHeadJs: Array<{ id: string; get: (sharedData: any[]) => Array<string | Script | JSX.Element> }> = [];
+  let css: Array<Css> = [];
+  let getJs: Array<{ id: string; get: (sharedData: any[]) => Array<Js> }> = [];
+  let getHeadJs: Array<{ id: string; get: (sharedData: any[]) => Array<Js> }> = [];
 
   let vnode: JSXElementWithDataForRender = inputVnode;
 
@@ -110,9 +109,9 @@ export function toHtmlPage(vnode: JSXElementPageWithDataForRender, options: { es
   const body = children.map(el => toObject(el, options.escape, context));
 
   const listHtml: Array<string | number> = [];
-  const listHeadJs: Array<string | Script>[] = [(vnode._headJs?.(vnode._sharedData).map(convertJsInlineToString) || [])];
-  const listJs: Array<string | Script>[] = [(vnode._js?.(vnode._sharedData).map(convertJsInlineToString) || [])];
-  const listStyle: Array<string | Link>[] = vnode._css || [];
+  const listHeadJs: Array<Exclude<Js, JSX.Element>[]> = [(vnode._headJs?.(vnode._sharedData).map(convertJsInlineToString) || [])];
+  const listJs: Array<Exclude<Js, JSX.Element>[]> = [(vnode._js?.(vnode._sharedData).map(convertJsInlineToString) || [])];
+  const listStyle: Array<Css[]> = vnode._css ? [vnode._css] : [];
 
   body.forEach(el => {
     listHtml.push(el.html);
@@ -124,7 +123,6 @@ export function toHtmlPage(vnode: JSXElementPageWithDataForRender, options: { es
   const headJs = format.js(listHeadJs.flat());
   const js = format.js(listJs.flat());
   const style = format.style(listStyle.flat());
-
   const minify = new Minify(vnode._minify ?? false);
   return (
     '<!DOCTYPE html>' +
@@ -140,7 +138,7 @@ export function toHtmlPage(vnode: JSXElementPageWithDataForRender, options: { es
     `${headJs}` +
     '</head>' +
     '<body>' +
-    `${listHtml.join('')}` +
+    `${minify.html(listHtml.join(''))}` +
     `${js}` +
     '</body>' +
     '</html>'

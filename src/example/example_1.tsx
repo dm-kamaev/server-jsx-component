@@ -8,19 +8,18 @@ import tpl from '../tpl';
 import { noEscape } from '../jsx/escape';
 
 const h = getJsxFactory();
+// For components witout parent: https://react.dev/reference/react/Fragment
 const Fragment = (_: any, children: any[]): JSX.Element => {
   return <fragment>{children}</fragment>;
 };
-
+// Component for wrapping inline js code
 const JsCode = function (props: { escape?: boolean }, children: any[]): JSX.Element {
   return <fragment escape={props.escape || false}>{children}</fragment>;
 };
 
-// https://github.com/cyokodog/vnode-parser
-
 const FormatDate = (props: { date: Date, style: string }) => {
   IgnisComp.setDataForFuncComponent<{ id: number }>(FormatDate, {
-    css: [ '.time{color: green}'],
+    css: () => [ '.time{color: green}'],
     sharedData: { id: Date.now() },
     headJs() {
       return [
@@ -153,7 +152,7 @@ class Doc extends IgnisComp<{ title: string; date: Date; author: string; lead: J
           })}
           {this.tpl
             .switch(1)
-            .case(1, () => <p>is 1</p>)
+            .case(1, (val) => <p>is {val}</p>)
             .case([2,3], <p>is 2 or 3</p>)
             .default(() => `<p>is other</p>`)
           }

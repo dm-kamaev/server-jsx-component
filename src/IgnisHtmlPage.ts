@@ -1,5 +1,5 @@
-import IgnisComp, { Js } from './IgnisComp';
-import { JSX } from './jsx.type';
+import IgnisComp from './IgnisComp';
+import { JSX, Js } from './jsx.type';
 
 import { IGenCssIdentifier } from './generator';
 
@@ -69,24 +69,24 @@ export default class IgnisHtmlPage<Props = { title?: string; description?: strin
       _description: this.description(),
       _keywords: this.keywords(),
       _js: (sharedData: SharedData[]) => {
-        this.setListSharedData(sharedData);
+        this.$setListSharedData(sharedData);
         const js = this.js();
-        this.cleanSharedData();
+        this.$cleanSharedData();
         return js;
       },
       _headJs: (sharedData: SharedData[]) => {
-        this.setListSharedData(sharedData);
+        this.$setListSharedData(sharedData);
         const headJs = this.headJs();
-        this.cleanSharedData();
+        this.$cleanSharedData();
         return headJs;
       },
-      _sharedData: this.getSharedData(),
+      _sharedData: this.$getSharedData(),
     };
   }
 
 
   render(): JSX.Element {
-    throw new Error('Not implemented');
+    throw new Error('Method render() not implemented');
   }
 };
 

@@ -11,10 +11,11 @@ import IgnisHtmlPage from '../IgnisHtmlPage';
 // const h = getJsxFactory({ generator: { generatorId, generatorClassName } });
 
 const h = getJsxFactory();
+// For components witout parent: https://react.dev/reference/react/Fragment
 const Fragment = function (_: any, children: any[]): JSX.Element {
   return <fragment>{children}</fragment>;
 };
-
+// Component for wrapping inline js code
 const JsCode = function (props: { escape?: boolean }, children: any[]): JSX.Element {
   return <fragment escape={props.escape || false}>{children}</fragment>;
 };
@@ -118,7 +119,7 @@ class BookYear extends IgnisComp<{ year: number }> {
 
 function FuncComponent(props: { id: number }) {
   IgnisComp.setDataForFuncComponent<{ id: number }>(FuncComponent, {
-    css: [`
+    css: () =>[`
     .example-description{border:1px solid red}
   `],
     sharedData: { id: props.id },

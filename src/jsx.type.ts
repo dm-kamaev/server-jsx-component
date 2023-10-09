@@ -1,5 +1,9 @@
 // https://www.typescriptlang.org/docs/handbook/jsx.html
 
+import type Script from './element/Script';
+import type CssClass from './element/CssClass';
+import type Link from './element/Link';
+
 export declare namespace JSX {
   export interface IComponent<P = {}, C = JSX.Children> {
     props: Readonly<P> | P;
@@ -53,12 +57,15 @@ export declare namespace JSX {
   }
 }
 
+export type Css = string | Link | CssClass;
+export type Js = string | Script | JSX.Element;
+
 
 export interface JSXElementWithDataForRender extends JSX.Element {
   _id?: string;
-  _css?: any[];
-  _js?: (sharedData: any[]) => any[];
-  _headJs?: (sharedData: any[]) => any[];
+  _css?: Array<Css>;
+  _js?: (sharedData: any[]) => Array<Js>;
+  _headJs?: (sharedData: any[]) => Array<Js>;
   _sharedData?: any;
 }
 
@@ -70,3 +77,4 @@ export interface JSXElementPageWithDataForRender extends JSXElementWithDataForRe
   _description?: string;
   _keywords?: string;
 }
+

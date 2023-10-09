@@ -4,13 +4,24 @@ import Link from './element/Link';
 import CssClass, { CssNode } from './element/CssClass';
 import CssLink from './element/CssLink';
 import tpl from './tpl';
-import { JSX } from './jsx.type';
+import { JSX, Js, Css } from './jsx.type';
 
 import generator, { IGenCssIdentifier } from './generator';
 import { escape, noEscape } from './jsx/escape';
 
-export type Css = string | Link | CssClass;
-export type Js = string | Script | JSX.Element;
+// interface methods for function component
+interface IInstance<TSharedData extends Record<string, any> = Record<string, any>> {
+  css: {
+    (css: string): CssClass;
+    (css: Link): Link;
+    (css: CssNode): CssClass;
+    (className: string, css: CssNode): CssClass;
+  },
+  cssLink: (href: string) => CssLink;
+  link: (href: string) => Link;
+  script: (src: string) => Script;
+  getSharedData: () => TSharedData[]
+}
 
 export default class IgnisComp<Props, Children = any[], SharedData extends Record<string, any> = Record<string, any>> implements JSX.IComponent<Props, Children> {
   readonly id: string;
@@ -30,23 +41,36 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
       _headJs?: (sharedData: Array<TSharedData>) => Array<Js>;
       _sharedData?: TSharedData
     },
-    data: { css?: Array<Css>, js?: () => Array<Js>; headJs?: () => Array<Js>; sharedData?: TSharedData }
+    data: { css?: (this: IInstance<TSharedData>) => void, js?: (this: IInstance<TSharedData>) => Array<Js>; headJs?: (this: IInstance<TSharedData>) => Array<Js>; sharedData?: TSharedData }
   ): void {
-    fnComponent._css = data.css || undefined;
+    const comp = new IgnisComp({}, []);
+    const methods = {
+      css: comp.css.bind(comp),
+      cssLink: comp.cssLink.bind(comp),
+      link: comp.link.bind(comp),
+      script: comp.script.bind(comp),
+      getSharedData: () => [],
+    };
+
+    fnComponent._css = undefined;
+    if (data.css) {
+      data.css.bind(methods)();
+      fnComponent._css = comp.$getCompCss();
+    }
+
     fnComponent._sharedData = data.sharedData || undefined;
 
     if (data.js) {
       const getJs = data.js;
       fnComponent._js = (sharedData: TSharedData[]) => {
-        return getJs.bind({
-          getSharedData: () => sharedData, script: (src: string) => new Script(src) })();
+        return getJs.bind({ ...methods, getSharedData: () => sharedData })();
       };
     }
 
     if (data.headJs) {
       const getHeadJs = data.headJs;
       fnComponent._headJs = (sharedData: TSharedData[]) => {
-        return getHeadJs.bind({ getSharedData: () => sharedData, script: (src: string) => new Script(src) })();
+        return getHeadJs.bind({ ...methods, getSharedData: () => sharedData, })();
       };
     }
   }
@@ -58,7 +82,7 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     fnComponent._headJs = undefined;
   }
 
-  static buildDataForRender(fnComponent: { (...arg): JSX.Element, _css?: Array<Css>, _js?: (sharedData: Array<any>) => Array<Js>; _headJs?: (sharedData: Array<any>) => Array<Js>; _sharedData?: ShareData }) {
+  static buildDataForRender(fnComponent: { (...arg): JSX.Element, _css?: () => Array<Css>, _js?: (sharedData: Array<any>) => Array<Js>; _headJs?: (sharedData: Array<any>) => Array<Js>; _sharedData?: ShareData }) {
     return {
       _id: _getCallerFile(),
       _css: fnComponent._css,
@@ -101,16 +125,16 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
   protected css(className: string, css: CssNode): CssClass;
   protected css(...arg) {
     let obj: string | Link | CssClass;
-    const has_one_param = arg.length === 1;
-    const first_param = arg[0];
-    const second_param = arg[1];
-    if ((has_one_param && typeof first_param === 'string') || (has_one_param && first_param instanceof Link)) {
-      obj = first_param;
-    } else if (has_one_param && first_param instanceof Object) {
+    const hasOneParam = arg.length === 1;
+    const param1 = arg[0];
+    const param2 = arg[1];
+    if ((hasOneParam && typeof param1 === 'string') || (hasOneParam && param1 instanceof Link)) {
+      obj = param1;
+    } else if (hasOneParam && param1 instanceof Object) {
       const class_name = this._settings.generatorClassName();
-      obj = new CssClass(class_name, first_param);
-    } else if (arg.length === 2 && typeof first_param === 'string' && second_param instanceof Object) {
-      const class_name = first_param.replace(/^\./, '');
+      obj = new CssClass(class_name, param1);
+    } else if (arg.length === 2 && typeof param1 === 'string' && param2 instanceof Object) {
+      const class_name = param1.replace(/^\./, '');
       obj = new CssClass(class_name, arg[1]);
     } else {
       throw new Error(`Invalid arguments: ${arg.join(', ')}`);
@@ -136,7 +160,7 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     return this._sharedData[key];
   }
 
-  protected getSharedData() {
+  protected $getSharedData() {
     return this._sharedData;
   }
 
@@ -144,11 +168,11 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     return this._listSharedData;
   }
 
-  protected setListSharedData(sharedData: Array<SharedData>) {
+  protected $setListSharedData(sharedData: Array<SharedData>) {
     this._listSharedData = sharedData;
   }
 
-  protected cleanSharedData() {
+  protected $cleanSharedData() {
     this._listSharedData = [];
   }
 
@@ -164,6 +188,11 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     return this._css;
   }
 
+  // for functional component
+  $getCompCss() {
+    return this._getCompCss();
+  }
+
   render(props: Props, children: Children): JSX.Element {
     throw new Error(`Method "render" is not implemented`);
   }
@@ -173,18 +202,18 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
       _id: this.id,
       _css: this._getCompCss(),
       _js: (sharedData: SharedData[]) => {
-        this.setListSharedData(sharedData);
+        this.$setListSharedData(sharedData);
         const js = this.js();
-        this.cleanSharedData();
+        this.$cleanSharedData();
         return js;
       },
       _headJs: (sharedData: SharedData[]) => {
-        this.setListSharedData(sharedData);
+        this.$setListSharedData(sharedData);
         const headJs = this.headJs();
-        this.cleanSharedData();
+        this.$cleanSharedData();
         return headJs;
       },
-      _sharedData: this.getSharedData(),
+      _sharedData: this.$getSharedData(),
     };
   }
 }
