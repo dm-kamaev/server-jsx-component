@@ -38,7 +38,10 @@ const FormatDate = (props: { date: Date, style: string }) => {
 };
 
 // second argument for turn on escape mode
-const obj = render.toObject(<FormatDate date={new Date()} style="color:red"></FormatDate>, true);
+const obj = render.toObject(
+  <FormatDate date={new Date()} style="color:red"></FormatDate>,
+  true
+);
 // <time datetime="2023-10-7" style="color:red">2023-10-7</time>
 console.log(obj.html);
 ```
