@@ -413,7 +413,7 @@ Method `this.script` is used for convenient creation of tag `<script>`.
 If you don't want manually building html page you can using special class `IgnisHtmlPage` which collecting html code of components and inserting all of needed css and js code.
 For example, we create three components: `HtmlPage`(inherited from `IgnisHtmlPage`), `List Book`, `Book` and you will see the basic capabilities such as component approach and isolated `css in js`.
 ```tsx
-import { getJsxFactory, render, IgnisComp, IgnisHtmlPage, JSX } from '@ignis-web/server-jsx-component';
+import { getJsxFactory, render, IgnisComp, IgnisHtmlPage, noEscape, JSX } from '@ignis-web/server-jsx-component';
 
 const h = getJsxFactory();
 
@@ -566,7 +566,13 @@ const htmlPage: JSX.Element = (
   >
     <div class="column">
       <ListBook books={books} title={<h1>User's list books:</h1>}></ListBook>
+      {/* Disable escape XSS content for value */ }
+      <div data-el-data={noEscape(JSON.stringify({ key: 'key', name: '<script></script>' }))}></div>
     </div>
+    {/* Disable escape XSS content for node */ }
+    <script noEscape>
+      console.log('console.log');
+    </script>
   </HtmlPage>
 );
 const html = render.toHtmlPage(htmlPage, { escape: true });

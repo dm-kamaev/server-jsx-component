@@ -1,8 +1,5 @@
 
-import { getJsxFactory, render, JSX } from '../index';
-
-import IgnisComp from '../IgnisComp';
-import IgnisHtmlPage from '../IgnisHtmlPage';
+import { getJsxFactory, render, JSX, IgnisComp, IgnisHtmlPage } from '../index';
 
 // Set custom generator for css class and id of dom elements
 // import GenCssIdentifier from '@ignis-web/gen-css-identifier';

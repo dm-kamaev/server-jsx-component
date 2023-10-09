@@ -1,11 +1,5 @@
 
-import { getJsxFactory, render, JSX } from '../index';
-
-import IgnisComp from '../IgnisComp';
-import IgnisHtmlPage from '../IgnisHtmlPage';
-
-import tpl from '../tpl';
-import { noEscape } from '../jsx/escape';
+import { getJsxFactory, render, JSX, tpl, noEscape, IgnisComp, IgnisHtmlPage } from '../index';
 
 const h = getJsxFactory();
 // For components witout parent: https://react.dev/reference/react/Fragment
