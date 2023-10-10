@@ -131,52 +131,69 @@ function func(cb: () => JSX.Element | string | number | undefined) {
   return cb();
 };
 
-
-type Cb = JSX.Element | string | number | (() => JSX.Element | string | number | undefined);
+type Cb<Value> = JSX.Element | string | number | ((value: Value) => JSX.Element | string | number | undefined) ;
+type CbElse = JSX.Element | string | number | (() => JSX.Element | string | number | undefined) ;
+type Condition = Boolean | (() => any) | (() => Boolean);
+type ListElseIf<TCondition extends Condition> = Array<{ condition: TCondition; cb: Cb<TCondition> }>;
 /**
  * if
  * @param  {function(): boolean | boolean} conditon
  * @param  {function(): string | string} if_cb - cb for if
  * @return {function(): string}
 */
-function _if(conditon: Boolean | (() => Boolean), ifCb: Cb) {
+function _if<Condition>(conditon: Condition, ifCb: Cb<Condition>) {
   return new IfElseIfElse(conditon, ifCb);
 };
 
 
-class IfElseIfElse {
-  private readonly _listElseIf: Array<{ condition: Boolean | (() => Boolean); cb: Cb }> = [];
-  private _elseCb?: Cb;
+class IfElseIfElse<IfCondition> {
+  private readonly _listElseIf: ListElseIf<any> = [];
+  private _elseCb?: CbElse;
 
-  constructor(private readonly _condition, private readonly ifCb) {}
+  /**
+   * if
+   * @example
+   * tpl.if(value === 1, () => <p>is 1</p>).get();
+   * tpl.if(value === 1, () => <p>is 1</p>).else( <p>is 10</p>).get();
+   * <div>{tpl.if(value === 1, () => <p>is 1</p>).elseIf(value === 10, () => <p>is 10</p>)}</div>
+   */
+  constructor(private readonly _condition: IfCondition, private readonly ifCb: Cb<IfCondition>) {}
 
   /**
    * else_if - optional method
-   * @example tpl.if(10 === 1, () => <p>is 1</p>).else_if(10 === 10, () => <p>is 10</p>).get();
+   * @example
+   * tpl.if(value === 1, () => <p>is 1</p>).else_if(10 === 10, () => <p>is 10</p>).get();
+   * tpl.if(value === 1, () => <p>is 1</p>).else_if(10 === 10, <p>is 10</p>).get();
+   * <div>{tpl.if(value === 1, () => <p>is 1</p>).else_if(value === 10, () => <p>is 10</p>)}</div>
    * @param  {function():boolean}   conditon
    * @param  {function(): string | string} cb
    * @return {obj}
    */
-  else_if(condition: Boolean | (() => Boolean), cb: Cb) {
+  else_if<Condition>(condition: Condition, cb: Cb<Condition>) {
     this._listElseIf.push({ condition, cb });
     return this;
   }
 
   /**
    * elseIf - optional method
-   * @example tpl.if(10 === 1, () => <p>is 1</p>).else_if(10 === 10, () => <p>is 10</p>).get();
+   * @example
+   * tpl.if(value === 1, () => <p>is 1</p>).elseIf(10 === 10, () => <p>is 10</p>).get();
+   * tpl.if(value === 1, () => <p>is 1</p>).elseIf(10 === 10, <p>is 10</p>).get();
+   * <div>{tpl.if(value === 1, () => <p>is 1</p>).elseIf(value === 10, () => <p>is 10</p>)}</div>
    */
-  elseIf(condition: Boolean | (() => Boolean), cb: Cb) {
+  elseIf<Condition>(condition: Condition, cb: Cb<Condition>) {
     return this.else_if(condition, cb);
   }
 
   /**
    * else - optional method
-   * @example tpl.if(10 === 1, () => <p>is 1</p>).else(() => <p>is other</p>).get();
+   * @example
+   * tpl.if(value === 1, () => <p>is 1</p>).else(() => <p>is other</p>).get();
+   * tpl.if(value === 1, () => <p>is 1</p>).else(<p>is other</p>).get();
    * @param  {function():string} cb
    * @return {obj} return self
    */
-  else(cb: Cb) {
+  else(cb: CbElse) {
     this._elseCb = cb;
     return this;
   }
@@ -185,17 +202,18 @@ class IfElseIfElse {
     const condition = (typeof this._condition === 'function') ? this._condition() : this._condition;
     if (Boolean(condition)) {
       if (typeof this.ifCb === 'function') {
-        return this.ifCb();
+        return this.ifCb(condition);
       } else {
         return this.ifCb;
       }
     } else {
-      const elseIfCb = this._searchInElseIf();
-      if (elseIfCb !== false) {
-        if (typeof elseIfCb === 'function') {
-          return elseIfCb();
+      const elseIf = this._searchInElseIf();
+      if (elseIf !== false) {
+        if (typeof elseIf.cb === 'function') {
+          return elseIf.cb(elseIf.conditon);
         } else {
-          return elseIfCb;
+          // as value
+          return elseIf.cb;
         }
       } else {
         if (typeof this._elseCb === 'function') {
@@ -211,11 +229,7 @@ class IfElseIfElse {
     return this.get();
   }
 
-  /**
-   * _search_in_else_if
-   * @param  {Array<{ conditon: function():boolean, cb: function():string | string }>} list_else_if
-   * @return {boolean}
-   */
+
   private _searchInElseIf() {
     const listElseIf = this._listElseIf
     if (!listElseIf.length) {
@@ -225,7 +239,7 @@ class IfElseIfElse {
       const el = listElseIf[i];
       const conditon = (typeof el.condition === 'function') ? el.condition() : el.condition;
       if (Boolean(conditon)) {
-        return el.cb;
+        return { conditon, cb: el.cb };
       }
     }
     return false;
