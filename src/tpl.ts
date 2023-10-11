@@ -131,15 +131,16 @@ function func(cb: () => JSX.Element | string | number | undefined) {
   return cb();
 };
 
-type Cb<Value> = JSX.Element | string | number | ((value: Value) => JSX.Element | string | number | undefined) ;
+type Cb<Value> = JSX.Element | string | number | ((value: Exclude<Value, false>) => JSX.Element | string | number | undefined) ;
 type CbElse = JSX.Element | string | number | (() => JSX.Element | string | number | undefined) ;
 type Condition = Boolean | (() => any) | (() => Boolean);
 type ListElseIf<TCondition extends Condition> = Array<{ condition: TCondition; cb: Cb<TCondition> }>;
 /**
  * if
- * @param  {function(): boolean | boolean} conditon
- * @param  {function(): string | string} if_cb - cb for if
- * @return {function(): string}
+ * @example
+ * tpl.if(value === 1, () => <p>is 1</p>).get();
+ * tpl.if(value === 1, () => <p>is 1</p>).else( <p>is 10</p>).get();
+ * <div>{tpl.if(value === 1, () => <p>is 1</p>).elseIf(value === 10, () => <p>is 10</p>)}</div>
 */
 function _if<Condition>(conditon: Condition, ifCb: Cb<Condition>) {
   return new IfElseIfElse(conditon, ifCb);

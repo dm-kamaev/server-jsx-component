@@ -1,6 +1,6 @@
 {
   "name": "@ignis-web/server-jsx-component",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A minimalistic framework for creating reusable and encapsulated JSX view components on server side",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",

@@ -119,6 +119,7 @@ class Doc extends IgnisComp<{ title: string; date: Date; author: string; lead: J
     const id = this.createId();
     const cls = this.createClassName();
     const value = Date.now();
+    const object: { key1: string } | { key2: number } = { key1: 'ssdf' } as any;
     return (
       <article id={id} for="example" class={'test ' + cls} style="margin-top:20px">
         <h1 data-el-data={JSON.stringify(['<script></script>', 'alert(1)' ])}>{title}</h1>
@@ -154,6 +155,13 @@ class Doc extends IgnisComp<{ title: string; date: Date; author: string; lead: J
             .if(value, (value) => <p>is if</p>)
             // .if(value === 1, (value) => <p>is if</p>)
             .elseIf(value === Date.now(), (val) => <p>is else if</p>)
+            // .elseIf(value, (val) => <p>is else if</p>)
+            .else(() => `<p>is else</p>`)
+          }
+          {this.tpl
+            .if('key1' in object && object.key1, (value) => <p>is if</p>)
+            // .if(value === 1, (value) => <p>is if</p>)
+            .elseIf('key2' in object && object.key2, (val) => <p>is else if</p>)
             // .elseIf(value, (val) => <p>is else if</p>)
             .else(() => `<p>is else</p>`)
           }

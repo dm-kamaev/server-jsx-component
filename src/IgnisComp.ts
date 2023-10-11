@@ -84,7 +84,7 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
 
   static buildDataForRender(fnComponent: { (...arg): JSX.Element, _css?: () => Array<Css>, _js?: (sharedData: Array<any>) => Array<Js>; _headJs?: (sharedData: Array<any>) => Array<Js>; _sharedData?: ShareData }) {
     return {
-      _id: _getCallerFile(),
+      _id: _getCallerFile()+':'+(fnComponent.name || ''),
       _css: fnComponent._css,
       _js: fnComponent._js,
       _headJs: fnComponent._headJs,
