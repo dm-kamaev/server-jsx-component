@@ -675,7 +675,7 @@ Collection of methods for handy work with JSX elements: `forEach`, `if/else/else
 </div>
 ```
 
-Passing result of condtion:
+Passing result of condition to callback:
 ```tsx
 const object: { key1: string } | { key2: number } = { key1: 'ssdf' } as any;
 <div>
