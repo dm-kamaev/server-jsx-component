@@ -1,5 +1,4 @@
-import { getJsxFactory, IgnisComp, IgnisHtmlPage, render, JSX } from '../../src/index';
-import { noEscape } from '../../src/jsx/escape';
+import { getJsxFactory, IgnisComp, IgnisHtmlPage, render, JSX, noEscape } from '../../src/index';
 
 describe('[IgnisHtmlPage]', () => {
 

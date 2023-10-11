@@ -1,5 +1,4 @@
-import CssClass from '../src/element/CssClass';
-import mediaRange from '../src/mediaRange';
+import { CssClass, mediaRange } from '../src/index';
 
 describe('[CssClass.ts]', function () {
 

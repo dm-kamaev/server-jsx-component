@@ -30,8 +30,8 @@ declare global {
 //   },
 // });
 
-function formater(str) {
-  return str.replace(/\s+/g, ' ').trim();
-}
+// function formater(str) {
+//   return str.replace(/\s+/g, ' ').trim();
+// }
 
 

@@ -1,8 +1,5 @@
 import GenCssIdentifier from '@ignis-web/gen-css-identifier';
-import { getJsxFactory, IgnisComp, render, JSX } from '../../src/index';
-import Script from '../../src/element/Script';
-import CssClass from '../../src/element/CssClass';
-
+import { getJsxFactory, IgnisComp, render, JSX, CssClass, Script } from '../../src/index';
 
 describe('[IgnisComp: class component]', function () {
 

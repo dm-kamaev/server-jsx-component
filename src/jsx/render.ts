@@ -146,6 +146,31 @@ export function toHtmlPage(vnode: JSXElementPageWithDataForRender, options: { es
 };
 
 
+export function toTurboHtml(vnode: JSXElementPageWithDataForRender, options: { targetElId?: string | number; escape: boolean }) {
+
+  // const { children } = vnode;
+
+  // console.dir(children, { depth: 10 });
+  // render components to string
+
+  const { html, css: listStyle, headJs: listHeadJs, js: listJs } = toObject(vnode, options.escape);
+
+  let id = options.targetElId;
+  if (!id) {
+    id = vnode.attributes?.id;
+    if (!id) {
+      throw new Error('Not found targetElId: not passed and not found in root component. You should pass targetElId or set id for root component');
+    }
+  }
+
+  const js = format.js(listHeadJs.flat().concat(listJs.flat()));
+  const css = format.style(listStyle.flat());
+  const minify = new Minify(vnode._minify ?? false);
+
+  return { id, html: minify.html(html), css: minify.style(css), js };
+}
+
+
 function convertJsInlineToString(el: string | Script | JSX.Element) {
   if (typeof el === 'string' || el instanceof Script) {
     return el;
