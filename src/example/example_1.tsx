@@ -159,11 +159,9 @@ class Doc extends IgnisComp<{ title: string; date: Date; author: string; lead: J
             .else(() => `<p>is else</p>`)
           }
           {this.tpl
-            .if('key1' in object && object.key1, (value) => <p>is if</p>)
-            // .if(value === 1, (value) => <p>is if</p>)
-            .elseIf('key2' in object && object.key2, (val) => <p>is else if</p>)
-            // .elseIf(value, (val) => <p>is else if</p>)
-            .else(() => `<p>is else</p>`)
+            .if('key1' in object && object.key1, (value) => <p>object has key1, value = {value} (type string)</p>)
+            .elseIf('key2' in object && object.key2, (value) => <p>object has key2, value = {value} (type number)</p>)
+            .else(() => `<p>is unknown object</p>`)
           }
           <li><Author id={879} author={author} year={1894} name="War and Peace"></Author></li>
         </ul>

@@ -675,6 +675,22 @@ Collection of methods for handy work with JSX elements: `forEach`, `if/else/else
 </div>
 ```
 
+Passing result of condtion:
+```tsx
+const object: { key1: string } | { key2: number } = { key1: 'ssdf' } as any;
+<div>
+  {this.tpl
+    .if('key1' in object && object.key1, value =>
+      <p>object has key1, value = {value}, type value is string</p>
+    )
+    .elseIf('key2' in object && object.key2, value =>
+      <p>object has key2, value = {value}, type value is number</p>
+    )
+    .else(() => `<p>is unknown object</p>`)
+  }
+</div>
+```
+
 ##### switch/case
 ```tsx
 <div>
