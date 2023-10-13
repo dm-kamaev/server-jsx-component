@@ -10,12 +10,15 @@ test_coverage:
 test_badge: test_coverage
 	npx jest-coverage-badges
 
-build:
+clean:
 	rm -rf dist;
+
+build: clean
 	npx tsc
 
-publish: test_badge ts_check build
-	npm publish --access public
+publish: clean test_badge ts_check build
+	npm publish --access public;
+	make clean;
 
 ci: ts_check test_coverage build
 
