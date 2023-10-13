@@ -151,6 +151,12 @@ class Doc extends IgnisComp<{ title: string; date: Date; author: string; lead: J
             .case([2,3], <p>is 2 or 3</p>)
             .default(() => `<p>is other</p>`)
           }
+          <span {...this.tpl
+            .switch(1)
+            .case(1, (val) => ({ class: `one ${val}` }))
+            .case([2, 3], { class: 'two three' })
+            .default({})
+          }></span>
           {this.tpl
             .if(value, (value) => <p>is if</p>)
             // .if(value === 1, (value) => <p>is if</p>)
@@ -163,6 +169,11 @@ class Doc extends IgnisComp<{ title: string; date: Date; author: string; lead: J
             .elseIf('key2' in object && object.key2, (value) => <p>object has key2, value = {value} (type number)</p>)
             .else(() => `<p>is unknown object</p>`)
           }
+          <span {...this.tpl
+            .if('key1' in object && object.key1, (value) => ({ key1: true, value }))
+            .elseIf('key2' in object && object.key2, (value) => ({ key2: true, value }))
+            .else({ ...object })
+          }></span>
           <li><Author id={879} author={author} year={1894} name="War and Peace"></Author></li>
         </ul>
         <Lead>{lead}</Lead>
@@ -209,9 +220,10 @@ class HtmlPage extends IgnisHtmlPage<{ title?: string; description?: string; key
       color: '#333',
       'font-size': '24px',
     });
+    const list = [1, 2, 3] as const;
     return (
       <Fragment>
-        {this.tpl.forEach([1, 2, 3], (el) => el)}
+        {this.tpl.forEach(list, el => el)}
         {this.children}
       </Fragment>
     );

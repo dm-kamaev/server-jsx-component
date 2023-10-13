@@ -1,4 +1,4 @@
-import { JSX } from '../jsx.type';
+import { JSX, ArrayElement } from '../jsx.type';
 
 const replacementText: { [name: string]: string } = {
   '&': '&amp;',
@@ -7,7 +7,7 @@ const replacementText: { [name: string]: string } = {
   '<': '&lt;',
   '>': '&gt;',
 };
-type ArrayElement<T extends readonly unknown[]> = T extends Array<infer Element> ? Element : never;
+// type ArrayElement<T extends readonly unknown[]> = T extends Array<infer Element> ? Element : never;
 
 export function escape(child: ArrayElement<JSX.Children>): ArrayElement<JSX.Children> {
   // console.log({ inputTarget: child });
@@ -38,13 +38,7 @@ export function escapeAttributes(attributes: JSX.Attribute): JSX.Attribute {
 
   const attr: JSX.Attribute = {};
   Object.entries(attributes).forEach(([name, value]) => {
-    // if (name === 'data-el-data') {
-    //   console.log({ attributes, name, value: value, });
-    // }
     attr[name] = value instanceof NoEscape ? value.data : escape(value);
-    // if (name === 'data-el-data') {
-    //   console.log(attr[name]);
-    // }
   });
   return attr;
 }

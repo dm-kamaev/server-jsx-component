@@ -78,3 +78,5 @@ export interface JSXElementPageWithDataForRender extends JSXElementWithDataForRe
   _keywords?: string;
 }
 
+
+export type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;

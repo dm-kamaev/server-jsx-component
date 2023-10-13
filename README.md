@@ -25,7 +25,7 @@ Navigation:
 ### Function component
 ```tsx
 import { getJsxFactory, render, JSX } from '@ignis-web/server-jsx-component';
-
+// Create render function. TypeScript compiler uses her for transform jsx elements to html
 const h = getJsxFactory();
 
 const FormatDate = (props: { date: Date, style: string }) => {
@@ -49,7 +49,7 @@ console.log(obj.html);
 ### Class component
 ```tsx
 import { getJsxFactory, render, IgnisComp } from '@ignis-web/server-jsx-component';
-
+// Create render function. TypeScript compiler uses her for transform jsx elements to html
 const h = getJsxFactory();
 
 class FormatDate extends IgnisComp<{ date: Date, style: string }> {
@@ -82,7 +82,7 @@ import {
   IgnisComp,
   IgnisHtmlPage
 } from '@ignis-web/server-jsx-component';
-
+// Create render function. TypeScript compiler uses her for transform jsx elements to html
 const h = getJsxFactory();
 
 // For components witout parent:
@@ -691,6 +691,15 @@ const object: { key1: string } | { key2: number } = { key1: 'ssdf' } as any;
 </div>
 ```
 
+Work with attributes:
+```tsx
+<span {...this.tpl
+  .if('key1' in object && object.key1, (value) => ({ class: `key1 ${value}` }))
+  .elseIf('key2' in object && object.key2, (value) => ({ class: `default ${value}` }))
+  .else({ ...object })
+}></span>
+```
+
 ##### switch/case
 ```tsx
 <div>
@@ -701,6 +710,16 @@ const object: { key1: string } | { key2: number } = { key1: 'ssdf' } as any;
     .default(() => `<p>is other</p>`)
   }
 </div>
+```
+
+Work with attributes:
+```tsx
+<span {...this.tpl
+  .switch(value)
+  .case(1, (val) => ({ class: `one ${val}` }))
+  .case([2, 3], { class: 'two three' })
+  .default({})
+}></span>
 ```
 
 ##### each

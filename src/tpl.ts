@@ -1,7 +1,8 @@
-import { JSX } from "./jsx.type";
+import { JSX, ArrayElement } from "./jsx.type";
 
 type Output = JSX.Element | string | number;
-type OutputOrUndef = JSX.Element | string | number | undefined;
+type OutputOrUndef = JSX.Element | string | number | undefined | {};
+
 
 /**
  * foreach
@@ -9,7 +10,7 @@ type OutputOrUndef = JSX.Element | string | number | undefined;
  * @param  {Function} handler:
  * @return {String}
  */
-function forEach<T>(array: T[], handler: (el: T, i: number) => JSX.Element | string | number | undefined | null): Array<Output> {
+function forEach<List extends readonly any[]>(array: List, handler: (el: ArrayElement<List>, i: number) => JSX.Element | string | number | undefined | null): Array<Output> {
   const res: Array<Output> = [];
   for (let i = 0, l = array.length; i < l; i++) {
     const el = array[i];
@@ -66,7 +67,7 @@ function _switch<TValue>(val: TValue) {
   return new SwitchCase(val);
 }
 
-type Task<TValue> = JSX.Element | string | number | ((value: TValue) => JSX.Element | string | number);
+type Task<TValue> = JSX.Element | string | number | {} | ((value: TValue) => JSX.Element | string | number | {});
 
 class SwitchCase<TValue> {
   private readonly _list: Array<[any, Task<TValue>]>;
@@ -131,8 +132,8 @@ function func(cb: () => JSX.Element | string | number | undefined) {
   return cb();
 };
 
-type Cb<Value> = JSX.Element | string | number | ((value: Exclude<Value, false>) => JSX.Element | string | number | undefined) ;
-type CbElse = JSX.Element | string | number | (() => JSX.Element | string | number | undefined) ;
+type Cb<Value> = JSX.Element | string | number | undefined | {} | ((value: Exclude<Value, false>) => JSX.Element | string | number | undefined | {}) ;
+type CbElse = JSX.Element | string | number | undefined | {} | (() => JSX.Element | string | number | undefined | {}) ;
 type Condition = Boolean | (() => any) | (() => Boolean);
 type ListElseIf<TCondition extends Condition> = Array<{ condition: TCondition; cb: Cb<TCondition> }>;
 /**
