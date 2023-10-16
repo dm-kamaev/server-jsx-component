@@ -4,6 +4,9 @@ type Output = JSX.Element | string | number;
 type OutputOrUndef = JSX.Element | string | number | undefined | {};
 
 
+export const ID_SWITCH_CASE = Symbol('switch_case');
+export const ID_IF_ELSEIF_ELSE = Symbol('if_else-if_else');
+
 /**
  * foreach
  * @param  {Array}   array:
@@ -70,12 +73,11 @@ function _switch<TValue>(val: TValue) {
 type Task<TValue> = JSX.Element | string | number | {} | ((value: TValue) => JSX.Element | string | number | {});
 
 class SwitchCase<TValue> {
-  private readonly _list: Array<[any, Task<TValue>]>;
+  readonly [ID_SWITCH_CASE]: this = this;
+  private readonly _list: Array<[any, Task<TValue>]> = [];
   private _defaultTask?: Task<TValue>;
 
-  constructor(private _val: TValue) {
-    this._list = [];
-  }
+  constructor(private readonly _val: TValue) {}
 
   /**
    * case
@@ -108,6 +110,11 @@ class SwitchCase<TValue> {
       }
     }
     return typeof this._defaultTask === 'function' ? this._defaultTask(this._val) : this._defaultTask;
+  }
+
+  getAsAttr() {
+    const result = this.get();
+    return result || {};
   }
 
   toString() {
@@ -149,6 +156,7 @@ function _if<Condition>(conditon: Condition, ifCb: Cb<Condition>) {
 
 
 class IfElseIfElse<IfCondition> {
+  readonly [ID_IF_ELSEIF_ELSE]: this = this;
   private readonly _listElseIf: ListElseIf<any> = [];
   private _elseCb?: CbElse;
 
@@ -159,7 +167,8 @@ class IfElseIfElse<IfCondition> {
    * tpl.if(value === 1, () => <p>is 1</p>).else( <p>is 10</p>).get();
    * <div>{tpl.if(value === 1, () => <p>is 1</p>).elseIf(value === 10, () => <p>is 10</p>)}</div>
    */
-  constructor(private readonly _condition: IfCondition, private readonly ifCb: Cb<IfCondition>) {}
+  constructor(private readonly _condition: IfCondition, private readonly _ifCb: Cb<IfCondition>) {}
+
 
   /**
    * else_if - optional method
@@ -203,10 +212,10 @@ class IfElseIfElse<IfCondition> {
   get(): OutputOrUndef {
     const condition = (typeof this._condition === 'function') ? this._condition() : this._condition;
     if (Boolean(condition)) {
-      if (typeof this.ifCb === 'function') {
-        return this.ifCb(condition);
+      if (typeof this._ifCb === 'function') {
+        return this._ifCb(condition);
       } else {
-        return this.ifCb;
+        return this._ifCb;
       }
     } else {
       const elseIf = this._searchInElseIf();
@@ -227,7 +236,17 @@ class IfElseIfElse<IfCondition> {
     }
   }
 
+  getAsAttr() {
+    const result = this.get();
+    return result || {};
+  }
+
+
   toString() {
+    return this.get();
+  }
+
+  valueOf() {
     return this.get();
   }
 
@@ -283,3 +302,5 @@ export default {
   func,
   class: _class,
 }
+
+

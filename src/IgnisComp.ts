@@ -155,9 +155,22 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     return [];
   }
 
-  protected setSharedData<K extends keyof SharedData & string>(key: K, value: SharedData[K]) {
-    this._sharedData[key] = value;
-    return this._sharedData[key];
+  protected setSharedData<K extends keyof SharedData & string>(sharedData: SharedData): SharedData;
+  // protected setSharedData<K extends keyof SharedData & string>(key: K, value: SharedData[K]) {
+  protected setSharedData<K extends keyof SharedData & string>(key: K, value: SharedData[K]): SharedData[K];
+  protected setSharedData(...arg) {
+    // this._sharedData[key] = value;
+    // return this._sharedData[key];
+    const keyOrWholeObj = arg[0];
+    const value = arg[1];
+    if (arg.length === 1 && keyOrWholeObj) {
+      const obj = keyOrWholeObj as SharedData;
+      return this._sharedData = obj;
+    } else {
+      const key = keyOrWholeObj as keyof SharedData;
+      this._sharedData[key] = value;
+      return this._sharedData[key];
+    }
   }
 
   protected $getSharedData() {
@@ -193,7 +206,7 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     return this._getCompCss();
   }
 
-  render(props: Props, children: Children): JSX.Element {
+  render(_props: Props, _children: Children): JSX.Element {
     throw new Error(`Method "render" is not implemented`);
   }
 

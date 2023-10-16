@@ -1,5 +1,6 @@
 import GenCssIdentifier from '@ignis-web/gen-css-identifier';
 import { getJsxFactory, IgnisComp, render, JSX, CssClass, Script } from '../../src/index';
+import assert from 'assert';
 
 describe('[IgnisComp: class component]', function () {
 
@@ -56,7 +57,10 @@ describe('[IgnisComp: class component]', function () {
         this.css('.list-book__name{font-size: 16px}');
 
         // You can store shared data for specific type components(in this case Book)  which were used on page
-        this.setSharedData('id', id);
+        let _id = this.setSharedData('id', id);
+        const state = this.setSharedData({ id: _id });
+
+        assert.ok(id === state.id);
 
         return (
           <div class={cl_book}>
@@ -328,7 +332,7 @@ describe('[IgnisComp: class component]', function () {
         <FuncComponent id={34534} />
       </div>, false);
 
-    expect(object.html).toEqual(`<div class="column"><div><h1>User's list books:</h1><p>Count: 2</p><div class="c"><p class="list-book__name">Name: War and Peace</p><p class="list-book__author">Author: Leo Tolstoy</p><p>Year: <span class="f">1863</span> </p></div><div class="g"><p class="list-book__name">Name: White Fang</p><p class="list-book__author">Author: Jack London</p><p>Year: <span class="i">1906</span> </p></div></div><section><header>I am functional component</header><footer class="example-description"></footer></section></div>`);
+    expect(object.html).toEqual(`<div class="column"><div><h1>User's list books:</h1><p>Count: 2</p><div class="c"><p class="list-book__name">Name: War and Peace</p><p class="list-book__author">Author: Leo Tolstoy</p><p>Year: <span class="f">1863</span></p></div><div class="g"><p class="list-book__name">Name: White Fang</p><p class="list-book__author">Author: Jack London</p><p>Year: <span class="i">1906</span></p></div></div><section><header>I am functional component</header><footer class="example-description"></footer></section></div>`);
     expect(object.css).toHaveLength(7);
     expect(object.css[0]).toBeInstanceOf(CssClass);
     expect(object.css[1]).toBeInstanceOf(CssClass);

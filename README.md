@@ -276,10 +276,12 @@ class Book extends IgnisComp<
 
     // You can store shared data for specific type
     // components (in this case Book) which were used on page
-    this.setSharedData('id', id);
+    const id = this.setSharedData('id', id);
+    // OR set whole of object
+    const { id } = this.setSharedData({ id });
 
     return (
-      <div>
+      <div id={id}>
         <p class="list-book__name">Name: {name}</p>
         <p>Author: {author}</p>
         <p>Year: {year}</p>
@@ -344,7 +346,7 @@ console.log(obj.js);
 
 * `headJs()` - this method is intended for declaration javascript for all specific type components (in this case for all components of "Book" type). Tags `<script>` will be placed in `<head></head>`.
 * `js()` - this method is similar to `headJS()`, but tags `<script>` will be placed before tag `<body>` close.
-*  `this.setSharedData(key, value)` - We can store shared data for specific type components (in this case for all components of "Book" type), which were used on the html page. For example, we save id of books and get them in declaration of javascript code for using in our business logic.
+*  `this.setSharedData(key, value): value | this.setSharedData(sharedData): sharedData` - We can store shared data for specific type components (in this case for all components of "Book" type), which were used on the html page. For example, we save id of books and get them in declaration of javascript code for using in our business logic. You can set specific part of shared data by key or set whole state.
 *  `this.getListSharedData()` - We get shared data as array (instance of components may be many on page).
 
 
@@ -700,6 +702,22 @@ Work with attributes:
 }></span>
 ```
 
+If you want use two or more conditions in attributes, you should call method `getAsAttr()` in the end:
+```ts
+<span
+  {...this.tpl
+    .if('key1' in object && object.key1, (value) => ({ class: `key1 ${value}` }))
+    .elseIf('key2' in object && object.key2, (value) => ({ class: `default ${value}` }))
+    .else({ ...object })
+    .getAsAttr()
+  }
+  {...this.tpl
+    .if(value === 1, id => ({ id }))
+    .getAsAttr()
+  }
+></span>
+```
+
 ##### switch/case
 ```tsx
 <div>
@@ -720,6 +738,24 @@ Work with attributes:
   .case([2, 3], { class: 'two three' })
   .default({})
 }></span>
+```
+
+If you want use two or more conditions in attributes, you should call method `getAsAttr()` in the end:
+```ts
+<span
+  {...this.tpl
+    .switch(value)
+    .case(1, (val) => ({ class: `one ${val}` }))
+    .case([2, 3], ({ class: 'two three' }))
+    .default({})
+    .getAsAttr()
+  }
+  {...this.tpl
+    .swich(value)
+    .case(1, id => ({ id }))
+    .getAsAttr()
+  }
+></span>
 ```
 
 ##### each

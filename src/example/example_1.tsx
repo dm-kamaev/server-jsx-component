@@ -66,7 +66,8 @@ class Lead extends IgnisComp<any, any[], { id: number }> {
   render() {
     this.css('.lead{color:red}');
     this.css(this.link('https://cdn.jsdelivr.net/gh/Wikiki/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css').rel('stylesheet'));
-    const id = this.setSharedData('id', Date.now());
+    // const id = this.setSharedData('id', Date.now());
+    // const { id } = this.setSharedData({ id: Date.now() });
     return <div id={id} class="lead">{this.children}</div>;
   }
 }
@@ -172,8 +173,9 @@ class Doc extends IgnisComp<{ title: string; date: Date; author: string; lead: J
           <span {...this.tpl
             .if('key1' in object && object.key1, (value) => ({ key1: true, value }))
             .elseIf('key2' in object && object.key2, (value) => ({ key2: true, value }))
-            .else({ ...object })
-          }></span>
+            .else({ ...object }).getAsAttr()
+          } {...this.tpl.if(true, () => ({ class: 'true' })).getAsAttr()} {...{ test: 1324 }} {...{ abc: 888 }} data-element-id={23424}></span>
+          <p {...this.tpl.if(Date.now() === 1, () => ({ class: 'true' }))} id={'test_12424'}>Test {this.tpl.if(true, () => <class true></class>)}</p>
           <li><Author id={879} author={author} year={1894} name="War and Peace"></Author></li>
         </ul>
         <Lead>{lead}</Lead>
@@ -268,3 +270,4 @@ const page: JSX.Element = (
 
 const html = render.toHtmlPage(page, { escape: true });
 console.log(html);
+

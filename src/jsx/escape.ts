@@ -48,6 +48,6 @@ export function noEscape(input: string | JSX.Element) {
   return new NoEscape(input);
 }
 
-class NoEscape {
+export class NoEscape {
   constructor(public readonly data: string | JSX.Element) {}
 }

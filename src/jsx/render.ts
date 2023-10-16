@@ -5,7 +5,8 @@ import format from '../transform/format';
 
 import { JSX, Css, Js, JSXElementPageWithDataForRender, JSXElementWithDataForRender } from '../jsx.type';
 
-import { escape, escapeAttributes } from './escape';
+import { escape, escapeAttributes, NoEscape } from './escape';
+import { ID_IF_ELSEIF_ELSE, ID_SWITCH_CASE } from '../tpl';
 
 
 const fragmentName = 'fragment';
@@ -49,8 +50,8 @@ function traverseToObject(
   // console.dir(vnode, { depth: 20 });
 
   const { elementName, attributes, children: _children } = vnode;
-
-  const children = escapeMode && !attributes?.noEscape ? (_children.map(item => escape(item))) : _children;
+  // console.log(vnode, elementName, _children);
+  const children = escapeMode && !attributes?.noEscape ? ((_children || []).map(item => escape(item))) : _children;
 
   if (vnode._id && !context[vnode._id]) {
     if (vnode._css) {
@@ -74,10 +75,14 @@ function traverseToObject(
   }
 
   // serialize attributes
+  // console.log(vnode.elementName);
   const attribtesAsString = convertAttributesToString(attributes, escapeMode);
 
   const htmlChildren: string = children ? children.map(vnode => {
     if (typeof vnode !== 'object') {
+      if (vnode === ' ') {
+        vnode = vnode.trim();
+      }
       return vnode;
     }
     const { css: _css, html, getHeadJs: _getHeadJs, getJs: _getJs } = traverseToObject(vnode, escapeMode, context);
@@ -93,7 +98,7 @@ function traverseToObject(
     return html;
   }).join('') : '';
 
-  const html = elementName === fragmentName ? htmlChildren : `<${elementName}${attribtesAsString}>${htmlChildren}</${elementName}>`;
+  const html = !elementName ? '' : elementName === fragmentName ? htmlChildren : `<${elementName}${attribtesAsString}>${htmlChildren}</${elementName}>`;
 
   return { css, html, getHeadJs, getJs };
 };
@@ -183,22 +188,41 @@ function convertJsInlineToString(el: string | Script | JSX.Element) {
 }
 
 
-function convertAttributesToString(attributes: JSX.Attribute, escapeMode: boolean) {
-  if (attributes) {
-    const result: string[] = [];
-    Object.entries(escapeAttr(attributes, escapeMode)).forEach(([key, value]) => {
-      if (value instanceof CssClass) {
-        result.push(`${key}="${value.getName()}"`);
-      } else if (key === 'noEscape') {
-        return;
-      } else {
-        result.push(`${key}="${value}"`);
-      }
-    });
-    return result.length ? ' '+result.join(' ') : '';
-  } else {
+function convertAttributesToString(inputAttributes: JSX.Attribute, escapeMode: boolean) {
+  if (!inputAttributes) {
     return '';
   }
+  const result: string[] = [];
+
+  const ignoreFields: Set<string> = new Set();
+
+    if (inputAttributes[ID_IF_ELSEIF_ELSE as unknown as string]) {
+    ignoreFields.add('_condition').add('_ifCb').add('_listElseIf').add('_elseCb').add(ID_IF_ELSEIF_ELSE as unknown as string);
+    Object.assign(inputAttributes, inputAttributes[ID_IF_ELSEIF_ELSE as unknown as string].get());
+  }
+  if (inputAttributes[ID_SWITCH_CASE as unknown as string]) {
+    ignoreFields.add('_val').add('_list').add('_defaultTask').add(ID_SWITCH_CASE as unknown as string);
+    Object.assign(inputAttributes, inputAttributes[ID_SWITCH_CASE as unknown as string].get());
+  }
+
+  const attributes: JSX.Attribute = {};
+  Object.entries(inputAttributes).forEach(([name, value]) => {
+    if (!ignoreFields.has(name)) {
+      attributes[name] = value;
+    }
+  });
+
+  Object.entries(escapeAttr(attributes, escapeMode)).forEach(([key, value]) => {
+    if (value instanceof CssClass) {
+      result.push(`${key}="${value.getName()}"`);
+    } else if (key === 'noEscape') {
+      return;
+    } else {
+      value = value instanceof NoEscape ? value.data : value;
+      result.push(`${key}="${value}"`);
+    }
+  });
+  return result.length ? ' ' + result.join(' ') : '';
 }
 
 function escapeAttr(attr: NonNullable<JSX.Attribute>, escape: boolean) {
