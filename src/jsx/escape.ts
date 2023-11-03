@@ -9,6 +9,10 @@ const replacementText: { [name: string]: string } = {
 };
 // type ArrayElement<T extends readonly unknown[]> = T extends Array<infer Element> ? Element : never;
 
+
+const stringForRegexp = Object.keys(replacementText).join('|');
+const regExpForEscape = new RegExp(`(${stringForRegexp})`, 'g');
+
 export function escape(child: ArrayElement<JSX.Children>): ArrayElement<JSX.Children> {
   // console.log({ inputTarget: child });
   if (!child) {
@@ -22,13 +26,21 @@ export function escape(child: ArrayElement<JSX.Children>): ArrayElement<JSX.Chil
   if (typeof child !== 'string') {
     return child;
   }
-  let result = child;
+  // let result = child;
 
-  Object.entries(replacementText).forEach(([ symbol, replace ]) => {
-    result = result.replace(new RegExp(symbol, 'g'), replace);
+  return child.replace(regExpForEscape, function ($1) {
+    const output = replacementText[$1];
+    if (!output) {
+      throw new Error(`[turbo-html]: Not found symbol for element ${$1}, input string ${child}`);
+    }
+    return output;
   });
 
-  return result;
+  // Object.entries(replacementText).forEach(([ symbol, replace ]) => {
+  //   result = result.replace(new RegExp(symbol, 'g'), replace);
+  // });
+
+  // return result;
 }
 
 export function escapeAttributes(attributes: JSX.Attribute): JSX.Attribute {
