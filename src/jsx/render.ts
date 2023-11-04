@@ -172,7 +172,7 @@ export function toTurboHtml(vnode: JSXElementPageWithDataForRender, options: { t
   const css = format.style(listStyle.flat());
   const minify = new Minify(vnode._minify ?? false);
 
-  return { id, html: minify.html(html), css: minify.style(css), js };
+  return { id: id+'', html: minify.html(html), css: minify.style(css), js };
 }
 
 
