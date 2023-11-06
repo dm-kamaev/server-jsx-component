@@ -84,8 +84,7 @@ export default class IgnisHtmlPage<Props = { title?: string; description?: strin
     };
   }
 
-
-  render(): JSX.Element {
+  render(props: Readonly<Props> | Props, children: Children): JSX.Element {
     throw new Error('Method render() not implemented');
   }
 };
