@@ -4,12 +4,44 @@ import type Script from './element/Script';
 import type CssClass from './element/CssClass';
 import type Link from './element/Link';
 
+export interface ContextRender extends Record<string, { css: Array<Css>, sharedData: Array<any> }> {}
+
+export interface JSXElementWithDataForRender extends JSX.Element {
+  _id?: string;
+  _css?: Array<Css>;
+  _js?: (sharedData: any[]) => Array<Js>;
+  _headJs?: (sharedData: any[]) => Array<Js>;
+  _sharedData?: any;
+}
+
+export interface JSXFabricElementWithDataForRender extends JSX.Element {
+  _build(context: ContextRender): JSXElementWithDataForRender;
+}
+
+interface JSXPageWithDataForRender extends JSXElementWithDataForRender{
+  _minify?: boolean;
+  _htmlTag?: string;
+  _head?: string[];
+  _title?: string;
+  _description?: string;
+  _keywords?: string;
+}
+
+export interface JSXFabricPageWithDataForRender {
+  _build(context: ContextRender): JSXPageWithDataForRender;
+}
+
+export type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;
+
+
+
 export declare namespace JSX {
   export interface IComponent<P = {}, C = JSX.Children> {
     props: Readonly<P> | P;
     children: C;
     render(props: Readonly<P> | P, children: C): JSX.Element;
     // ==== custom methods/fields ====
+    setCss(css: Array<Css>): this;
     buildDataForRender?(): {
       _id: string;
       _css: any[];
@@ -60,23 +92,3 @@ export declare namespace JSX {
 export type Css = string | Link | CssClass;
 export type Js = string | Script | JSX.Element;
 
-
-export interface JSXElementWithDataForRender extends JSX.Element {
-  _id?: string;
-  _css?: Array<Css>;
-  _js?: (sharedData: any[]) => Array<Js>;
-  _headJs?: (sharedData: any[]) => Array<Js>;
-  _sharedData?: any;
-}
-
-export interface JSXElementPageWithDataForRender extends JSXElementWithDataForRender {
-  _minify?: boolean;
-  _htmlTag?: string;
-  _head?: string[];
-  _title?: string;
-  _description?: string;
-  _keywords?: string;
-}
-
-
-export type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;

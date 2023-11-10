@@ -1,4 +1,6 @@
 import { getJsxFactory, IgnisComp, IgnisHtmlPage, render, JSX, noEscape } from '../../src/index';
+import { JSXFabricPageWithDataForRender } from '../../src/jsx.type';
+
 
 describe('[IgnisHtmlPage]', () => {
 
@@ -225,7 +227,7 @@ describe('[IgnisHtmlPage]', () => {
   }
 
   it('whole page: with 2 children', () => {
-    const doc: JSX.Element = (
+    const page: JSXFabricPageWithDataForRender = (
       <HtmlPage
         // title='Test' description='Description' keywords='Keywords'
       >
@@ -241,13 +243,13 @@ describe('[IgnisHtmlPage]', () => {
       </HtmlPage>
     );
 
-    const html = render.toHtmlPage(doc, { escape: true });
+    const html = render.toHtmlPage(page, { escape: true });
 
     expect(html).toEqual(`<!DOCTYPE html><html lang="EN"><head><title>Title from method</title><meta name="description" content="Description from method"><meta name="keywords" content="Keywords from method"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="http://bulma-calendar/dist/css/bulma-calendar.min.css"/><style>.global-title{color:#333;font-size:24px;}.time{color: green}.b{color:red;}.b:focus{background-color:orange;}.list-book__author{text-transform:capitalize;}.list-book__name{font-size: 16px}.lead{color:red}</style><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Wikiki/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css"/><script>alert("Alert on page in header");</script><script src="http://cool-timepicker.js"></script><script>console.log('Ids of TimePicker [{"id":1696432990412},{"id":1696432990412}]');console.log("This js code in <head></head>, sharedData = [{"id":1696432990412},{"id":1696432990412}]");console.log('JSX inline script code in <head>'); console.log('JSX inline script code in <head>');</script><script>function __onload_1696432990412(){console.log("Highcharts is loading");}</script><script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/9.3.2/highcharts.js" async onload="__onload_1696432990412();"></script></head><body>123<article id="Z" for="example" class="test a" style="margin-top:20px"><h1 data-el-data="[&quot;&lt;script&gt;&lt;/script&gt;&quot;,&quot;alert(1)&quot;]">Hello TypeScript and JSX!</h1><ul><li><time datetime="2023-10-5" style="margin-top:10px">2023-10-5</time></li><li><time datetime="2023-10-5" style="margin-top:10px">2023-10-5</time></li><p>is 1</p>&lt;p&gt;is else&lt;/p&gt;<li><div id="879" class="b"><p class="list-book__name">Name: War and Peace</p><p class="list-book__author">Author: &lt;^o^&gt;/</p><p>Year: 1894</p></div></li></ul><div id="1696432990412" class="lead"><p>I like TypeScript and JSX.</p></div><div id="1696432990412" class="lead"><p>I like TypeScript and JSX.</p></div><div class="body"><p id="main" data-el-data="{"key":"key","name":"<script></script>"}">The document is <a href="https://www.typescriptlang.org/docs/handbook/jsx.html">here</a>.</p></div></article><script>console.log('Hello world!!!'); document.getElementById('main').innerHTML = 'Replace via js';</script><script>alert('Alert on page in footer');console.log("Hell I am doc");console.log('TimePicker init [{"id":1696432990412},{"id":1696432990412}]');</script><script src="https://unpkg.com/axios/dist/axios.min.js"></script><script>console.log('This js code before sharedData = [{"id":1696432990412},{"id":1696432990412}] </body>');console.log('JSX inline script code in footer <body>');</script></body></html>`);
   });
 
   it('whole page: with 1 child', () => {
-    const doc: JSX.Element = (
+    const page: JSXFabricPageWithDataForRender = (
       <HtmlPage
         // title='Test' description='Description' keywords='Keywords'
       >
@@ -259,7 +261,7 @@ describe('[IgnisHtmlPage]', () => {
       </HtmlPage>
     );
 
-    const html = render.toHtmlPage(doc, { escape: true });
+    const html = render.toHtmlPage(page, { escape: true });
 
     expect(html).toEqual(`<!DOCTYPE html><html lang="EN"><head><title>Title from method</title><meta name="description" content="Description from method"><meta name="keywords" content="Keywords from method"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="http://bulma-calendar/dist/css/bulma-calendar.min.css"/><style>.global-title{color:#333;font-size:24px;}.time{color: green}.d{color:red;}.d:focus{background-color:orange;}.list-book__author{text-transform:capitalize;}.list-book__name{font-size: 16px}.lead{color:red}</style><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Wikiki/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css"/><script>alert("Alert on page in header");</script><script src="http://cool-timepicker.js"></script><script>console.log('Ids of TimePicker [{"id":1696432990412},{"id":1696432990412}]');console.log("This js code in <head></head>, sharedData = [{"id":1696432990412},{"id":1696432990412}]");console.log('JSX inline script code in <head>'); console.log('JSX inline script code in <head>');</script><script>function __onload_1696432990413(){console.log("Highcharts is loading");}</script><script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/9.3.2/highcharts.js" async onload="__onload_1696432990413();"></script></head><body>123<article id="Y" for="example" class="test c" style="margin-top:20px"><h1 data-el-data="[&quot;&lt;script&gt;&lt;/script&gt;&quot;,&quot;alert(1)&quot;]">Hello TypeScript and JSX!</h1><ul><li><time datetime="2023-10-5" style="margin-top:10px">2023-10-5</time></li><li><time datetime="2023-10-5" style="margin-top:10px">2023-10-5</time></li><p>is 1</p>&lt;p&gt;is else&lt;/p&gt;<li><div id="879" class="d"><p class="list-book__name">Name: War and Peace</p><p class="list-book__author">Author: &lt;^o^&gt;/</p><p>Year: 1894</p></div></li></ul><div id="1696432990412" class="lead"><p>I like TypeScript and JSX.</p></div><div id="1696432990412" class="lead"><p>I like TypeScript and JSX.</p></div><div class="body"><p id="main" data-el-data="{"key":"key","name":"<script></script>"}">The document is <a href="https://www.typescriptlang.org/docs/handbook/jsx.html">here</a>.</p></div></article><script>alert('Alert on page in footer');console.log("Hell I am doc");console.log('TimePicker init [{"id":1696432990412},{"id":1696432990412}]');</script><script src="https://unpkg.com/axios/dist/axios.min.js"></script><script>console.log('This js code before sharedData = [{"id":1696432990412},{"id":1696432990412}] </body>');console.log('JSX inline script code in footer <body>');</script></body></html>`);
   });
@@ -272,7 +274,7 @@ describe('[IgnisHtmlPage]', () => {
       }
     }
 
-    const page: JSX.Element = (
+    const page: JSXFabricPageWithDataForRender = (
       <HtmlPage>
         <p id={id} data-el-data={noEscape(JSON.stringify({ key: 'key', name: '<script></script>' }))}>
           The document is <a href="https://www.typescriptlang.org/docs/handbook/jsx.html">here</a>.
@@ -292,7 +294,7 @@ describe('[IgnisHtmlPage]', () => {
       }
     }
 
-    const page: JSX.Element = (
+    const page: JSXFabricPageWithDataForRender = (
       <HtmlPage
         title='Test'
         keywords='Test'
@@ -362,7 +364,7 @@ describe('[IgnisHtmlPage]', () => {
         );
       }
     }
-    const page: JSX.Element = (
+    const page: JSXFabricPageWithDataForRender = (
       <HtmlPage>
         <EscapeChildren/>
       </HtmlPage>

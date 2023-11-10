@@ -33,6 +33,16 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
   private _sharedData: SharedData = {} as SharedData;
   private _listSharedData: Array<SharedData> = [] as SharedData[];
 
+  private _useExternalCss: boolean = false;
+  private _orderCss = 0;
+
+
+  public setCss(css: Array<Css>) {
+    this._useExternalCss = true;
+    this._css = css;
+    return this;
+  }
+
   static setDataForFuncComponent<TSharedData extends Record<string, any> = Record<string, any>>(
     fnComponent: {
       (...arg): JSX.Element,
@@ -52,14 +62,17 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
       getSharedData: () => [],
     };
 
-    fnComponent._css = undefined;
-    if (data.css) {
+    // fnComponent._css = undefined;
+    if (!fnComponent._css && data.css) {
+      data.css.bind(methods)();
+      fnComponent._css = comp.$getCompCss();
+    } else if (fnComponent._css && data.css) {
+      comp.setCss(fnComponent._css);
       data.css.bind(methods)();
       fnComponent._css = comp.$getCompCss();
     }
 
     fnComponent._sharedData = data.sharedData || undefined;
-
     if (data.js) {
       const getJs = data.js;
       fnComponent._js = (sharedData: TSharedData[]) => {
@@ -82,9 +95,13 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     fnComponent._headJs = undefined;
   }
 
-  static buildDataForRender(fnComponent: { (...arg): JSX.Element, _css?: () => Array<Css>, _js?: (sharedData: Array<any>) => Array<Js>; _headJs?: (sharedData: Array<any>) => Array<Js>; _sharedData?: ShareData }) {
+  static getIdForFuncComponent(fnComponent: (...arg) => JSX.Element) {
+    return  _getCallerFile()+':'+(fnComponent.name || '');
+  }
+
+  static buildDataForRender(fnComponent: { (...arg): JSX.Element, _id: string; _css?: () => Array<Css>, _js?: (sharedData: Array<any>) => Array<Js>; _headJs?: (sharedData: Array<any>) => Array<Js>; _sharedData?: ShareData }) {
     return {
-      _id: _getCallerFile()+':'+(fnComponent.name || ''),
+      _id: fnComponent._id,
       _css: fnComponent._css,
       _js: fnComponent._js,
       _headJs: fnComponent._headJs,
@@ -124,6 +141,9 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
   protected css(css: CssNode): CssClass;
   protected css(className: string, css: CssNode): CssClass;
   protected css(...arg) {
+    if (this._useExternalCss) {
+      return this._css[this._orderCss++];
+    }
     let obj: string | Link | CssClass;
     const hasOneParam = arg.length === 1;
     const param1 = arg[0];
@@ -140,9 +160,6 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
       throw new Error(`Invalid arguments: ${arg.join(', ')}`);
     }
 
-    // if (cl_name === 'User') {
-    //   console.log('origin', obj);
-    // }
     this._css.push(obj);
     return obj;
   }

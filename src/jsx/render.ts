@@ -3,81 +3,105 @@ import CssClass from '../element/CssClass';
 import Minify from '../transform/Minify';
 import format from '../transform/format';
 
-import { JSX, Css, Js, JSXElementPageWithDataForRender, JSXElementWithDataForRender } from '../jsx.type';
+import { JSX, Css, Js, JSXFabricPageWithDataForRender, JSXFabricElementWithDataForRender, JSXElementWithDataForRender, ContextRender } from '../jsx.type';
 
 import { escape, escapeAttributes, NoEscape } from './escape';
 import { ID_IF_ELSEIF_ELSE, ID_SWITCH_CASE } from '../tpl';
 
-
-const fragmentName = 'fragment';
-
+const fragmentName = 'fragment' as const;
 
 export function toObject(
   vnode: JSX.Element,
   escapeMode: boolean,
-  context: Record<string, { sharedData: any[] }> = {},
+  context: ContextRender = {},
 ) {
 
-  const { css, html, getHeadJs, getJs } = traverseToObject(vnode, escapeMode, context);
+  const { css, html, getHeadJs, getJs, domId } = traverseToObject(vnode, escapeMode, context);
 
   const headJs = getHeadJs.map(el => {
-    return el.get(context[el.id].sharedData || []).map(convertJsInlineToString);
+    return el.get(context[el.id].sharedData || []).map(convertJsInlineToString(context));
   }).flat();
 
   const js = getJs.map(el => {
-    return el.get(context[el.id].sharedData || []).map(convertJsInlineToString);
+    return el.get(context[el.id].sharedData || []).map(convertJsInlineToString(context));
   }).flat();
 
-  return { css, html, headJs, js };
+  return { css, html, headJs, js, domId };
 };
 
 
 function traverseToObject(
-  inputVnode: JSXElementWithDataForRender,
+  inputVnode: JSXFabricElementWithDataForRender | JSX.Element,
   escapeMode: boolean,
-  context: Record<string, { sharedData: any[] }> = {},
+  context: ContextRender = {},
 ) {
   let css: Array<Css> = [];
   let getJs: Array<{ id: string; get: (sharedData: any[]) => Array<Js> }> = [];
   let getHeadJs: Array<{ id: string; get: (sharedData: any[]) => Array<Js> }> = [];
 
-  let vnode: JSXElementWithDataForRender = inputVnode;
+  let vnode1: JSXFabricElementWithDataForRender | JSX.Element = inputVnode;
 
-  if (typeof vnode !== 'object') {
-    return { css, html: vnode, getHeadJs, getJs };
+  if (typeof vnode1 !== 'object') {
+    return { css, html: vnode1, getHeadJs, getJs };
   }
 
-  // console.dir(vnode, { depth: 20 });
-
+  const vnode = (vnode1 as JSXFabricElementWithDataForRender)._build?.(context) || vnode1;
   const { elementName, attributes, children: _children } = vnode;
+  // console.log(vnode);
   // console.log(vnode, elementName, _children);
-  const children = escapeMode && !attributes?.noEscape ? ((_children || []).map(item => escape(item))) : _children;
 
-  if (vnode._id && !context[vnode._id]) {
+  const id = vnode._id;
+
+  // if we have id then we call function build for get data for node
+  // if (id) {
+  //   console.log({ 'BEFORE vnode': vnode });
+  //   vnode = (vnode as any).build(context[id] && context[id].css);
+  //   console.log({ elementName, vnode });
+  //   // console.log(vnode.elementName, vnode, data);
+  //   ({ elementName, attributes, children: _children } = vnode);
+  // }
+
+  // first render
+  // console.log(vnode, id, id && !context[id]);
+  if (id && !context[id]) {
     if (vnode._css) {
+      // console.log('add css', { vnode });
       css = vnode._css;
     }
 
     if (vnode._headJs) {
-      getHeadJs.push({ id: vnode._id, get: vnode._headJs });
+      getHeadJs.push({ id, get: vnode._headJs });
+      // console.log({ getHeadJs });
     }
 
     if (vnode._js) {
-      getJs.push({ id: vnode._id, get: vnode._js });
+      getJs.push({ id, get: vnode._js });
     }
 
-    context[vnode._id] = { sharedData: [] };
+    context[id] = { css, sharedData: [] };
   }
 
   const sharedData = vnode._sharedData;
-  if (sharedData && vnode._id) {
-    context[vnode._id].sharedData.push(sharedData);
+  if (sharedData && id) {
+    // console.log(sharedData, id, context[id]);
+    context[id].sharedData.push(sharedData);
   }
 
-  // serialize attributes
-  // console.log(vnode.elementName);
-  const attribtesAsString = convertAttributesToString(attributes, escapeMode);
+  if ((vnode as JSXFabricElementWithDataForRender)._build && !elementName) {
+    const { css: _css, html, getHeadJs: _getHeadJs, getJs: _getJs } = traverseToObject(vnode, escapeMode, context);
+    if (_css.length) {
+      css = css.concat(_css);
+    }
+    if (_getHeadJs.length) {
+      getHeadJs = getHeadJs.concat(_getHeadJs);
+    }
+    if (_getJs.length) {
+      getJs = getJs.concat(_getJs);
+    }
+    return { css, html, getHeadJs, getJs };
+  }
 
+  const children = escapeMode && !attributes?.noEscape ? ((_children || []).map(item => escape(item))) : _children;
   const htmlChildren: string = children ? children.map(vnode => {
     if (typeof vnode !== 'object') {
       if (vnode === ' ') {
@@ -85,6 +109,7 @@ function traverseToObject(
       }
       return vnode;
     }
+    // console.log({ vnode });
     const { css: _css, html, getHeadJs: _getHeadJs, getJs: _getJs } = traverseToObject(vnode, escapeMode, context);
     if (_css.length) {
       css = css.concat(_css);
@@ -98,40 +123,53 @@ function traverseToObject(
     return html;
   }).join('') : '';
 
+  // serialize attributes
+  const attribtesAsString = convertAttributesToString(attributes, escapeMode);
   const html = !elementName ? '' : elementName === fragmentName ? htmlChildren : `<${elementName}${attribtesAsString}>${htmlChildren}</${elementName}>`;
 
-  return { css, html, getHeadJs, getJs };
+  return { css, html, getHeadJs, getJs, domId: attributes?.id };
 };
 
 
-export function toHtmlPage(vnode: JSXElementPageWithDataForRender, options: { escape: boolean }) {
-  const { attributes, children } = vnode;
-
+export function toHtmlPage(input: JSXFabricPageWithDataForRender, options: { escape: boolean }) {
   const context = {};
+  // console.log('HERE', toObject(vnode, options.escape, context));
+  // console.log('INPUT', vnode);
+  const vnode = input._build(context);
+  // const { attributes, children } = vnode;
+  const { attributes } = vnode;
+  // console.log('AFTER', vnode);
 
   // console.dir(children, { depth: 10 });
+
+  // let listHtml: Array<string | number> = [];
+  let listHeadJs: Array<Exclude<Js, JSX.Element>> = (vnode._headJs?.(vnode._sharedData).map(convertJsInlineToString(context)) || []);
+  let listJs: Array<Exclude<Js, JSX.Element>> = (vnode._js?.(vnode._sharedData).map(convertJsInlineToString(context)) || []);
+  let listStyle: Array<Css> = vnode._css ? vnode._css : [];
+
+  const el = toObject(vnode, options.escape, context);
+  // console.log('el', el);
   // render components to string
-  const body = children.map(el => toObject(el, options.escape, context));
+  // const body = (el as any).children.map(el => toObject(el, options.escape, context));
 
-  const listHtml: Array<string | number> = [];
-  const listHeadJs: Array<Exclude<Js, JSX.Element>[]> = [(vnode._headJs?.(vnode._sharedData).map(convertJsInlineToString) || [])];
-  const listJs: Array<Exclude<Js, JSX.Element>[]> = [(vnode._js?.(vnode._sharedData).map(convertJsInlineToString) || [])];
-  const listStyle: Array<Css[]> = vnode._css ? [vnode._css] : [];
+  listStyle = listStyle.concat(el.css);
+  listJs = listJs.concat(el.js);
+  listHeadJs = listHeadJs.concat(el.headJs);
 
-  body.forEach(el => {
-    listHtml.push(el.html);
-    listStyle.push(el.css);
-    listJs.push(el.js);
-    listHeadJs.push(el.headJs);
-  });
+  // body.forEach(el => {
+  //   listHtml.push(el.html);
+  //   listStyle.push(el.css);
+  //   listJs.push(el.js);
+  //   listHeadJs.push(el.headJs);
+  // });
 
-  const headJs = format.js(listHeadJs.flat());
-  const js = format.js(listJs.flat());
-  const style = format.style(listStyle.flat());
+  const headJs = format.js(listHeadJs);
+  const js = format.js(listJs);
+  const style = format.style(listStyle);
   const minify = new Minify(vnode._minify ?? false);
   return (
     '<!DOCTYPE html>' +
-    `${(vnode as any)._htmlTag}` +
+    `${vnode._htmlTag}` +
     '<head>' +
       `${minify.html(format.title(attributes?.title || vnode._title))}` +
       `${minify.html(format.description(attributes?.description || vnode._description))}` +
@@ -143,7 +181,7 @@ export function toHtmlPage(vnode: JSXElementPageWithDataForRender, options: { es
     `${headJs}` +
     '</head>' +
     '<body>' +
-    `${minify.html(listHtml.join(''))}` +
+    `${minify.html(el.html)}` +
     `${js}` +
     '</body>' +
     '</html>'
@@ -151,18 +189,18 @@ export function toHtmlPage(vnode: JSXElementPageWithDataForRender, options: { es
 };
 
 
-export function toTurboHtml(vnode: JSXElementPageWithDataForRender, options: { targetElId?: string | number; escape: boolean }) {
+export function toTurboHtml(vnode: JSXElementWithDataForRender, options: { targetElId?: string | number; escape: boolean, minify?: boolean }) {
 
   // const { children } = vnode;
 
   // console.dir(children, { depth: 10 });
   // render components to string
 
-  const { html, css: listStyle, headJs: listHeadJs, js: listJs } = toObject(vnode, options.escape);
+  const { html, css: listStyle, headJs: listHeadJs, js: listJs, domId } = toObject(vnode, options.escape);
 
   let id = options.targetElId;
   if (!id) {
-    id = vnode.attributes?.id;
+    id = domId;
     if (!id) {
       throw new Error('Not found targetElId: not passed and not found in root component. You should pass targetElId or set id for root component');
     }
@@ -170,21 +208,26 @@ export function toTurboHtml(vnode: JSXElementPageWithDataForRender, options: { t
 
   const js = format.js(listHeadJs.flat().concat(listJs.flat()));
   const css = format.style(listStyle.flat());
-  const minify = new Minify(vnode._minify ?? false);
+  const minify = new Minify(options.minify ?? false);
 
   return { id: id+'', html: minify.html(html), css: minify.style(css), js };
 }
 
 
-function convertJsInlineToString(el: string | Script | JSX.Element) {
-  if (typeof el === 'string' || el instanceof Script) {
-    return el;
-  } else {
-    if (el.attributes?.escape) {
-      el.children = el.children.map(item => escape(item));
+function convertJsInlineToString(context: ContextRender) {
+  return function ( input: string | Script | JSX.Element) {
+    if (typeof input === 'string' || input instanceof Script) {
+      return input;
+    } else {
+      const el: JSX.Element = (input as any)._build(context);
+      // console.log({ JSX: el });
+      if (el.attributes?.escape) {
+        el.children = el.children.map(item => escape(item));
+      }
+      // console.log({ el, children: el.children });
+      return `${el.children.join('')}`;
     }
-    return `${el.children.join('')}`;
-  }
+  };
 }
 
 
