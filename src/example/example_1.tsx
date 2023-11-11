@@ -252,7 +252,7 @@ const object = render.toObject(doc, true);
 console.log(object);
 
 
-const page: JSX.Element = (
+const page: JSX.ElementPage = (
   <HtmlPage
     // title='Test' description='Description' keywords='Keywords'
   >

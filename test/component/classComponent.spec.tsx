@@ -342,7 +342,6 @@ describe('[IgnisComp: class component]', function () {
     expect(object.css[3]).toBeInstanceOf(CssClass);
     expect(object.css[4]).toBeInstanceOf(CssClass);
     expect(object.css[5]).toBeInstanceOf(CssClass);
-    // console.log('|'+(object.css as any)[6].trim()+'|');
     expect((object.css[6] as CssClass).getName()).toEqual('example-description');
 
     expect(object.headJs).toHaveLength(4);

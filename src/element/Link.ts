@@ -6,7 +6,7 @@ export default class Link {
   private _rel: string;
   private _sizes: string;
   private _type: string;
-  constructor(private _href: string) { }
+  constructor(private readonly _href: string) { }
 
   charset(charset: string) {
     this._charset = charset;
@@ -33,7 +33,7 @@ export default class Link {
     return this;
   }
 
-  _if(val: string, template: string) {
+  private _if(val: string, template: string) {
     return val ? template : '';
   }
 

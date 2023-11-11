@@ -625,7 +625,7 @@ const books = [
   { id: 1, author: 'Leo Tolstoy', name: 'War and Peace', year: 1863 },
   { id: 2, author: 'Jack London', name: 'White Fang', year: 1906 }
 ];
-const htmlPage: JSX.Element = (
+const htmlPage: JSX.ElementPage = (
   <HtmlPage
   // You can redefine meta tags for page via attributes
   /*

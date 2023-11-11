@@ -12,6 +12,7 @@ export default class Minify {
         .replace(/:\s+/g, ':')
         .replace(/{\s+/g, '{')
         .replace(/\s+}/g, '}')
+        .replace(/\s+\./g, '.')
         .trim();
     } else {
       return css;

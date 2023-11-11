@@ -1,6 +1,5 @@
-import { JSX, JSXElementWithDataForRender, ContextRender, JSXFabricElementWithDataForRender } from '../jsx.type';
+import { JSX, ContextRender } from '../jsx.type';
 import expandChildren from './expandChildren';
-import * as crypto from 'node:crypto';
 
 import IgnisComp from '../IgnisComp';
 import { IGenCssIdentifier } from '../generator';
@@ -11,7 +10,7 @@ export default function getJsxFactory(option?: { generator?: { generatorId?: IGe
     elementName: JSX.ElementName,
     attributes: JSX.Attribute,
     ...children: JSX.Children
-  ): JSX.Element | JSXFabricElementWithDataForRender => {
+  ): JSX.Element => {
 
     if (typeof elementName === 'string') {
       return {
@@ -31,7 +30,6 @@ export default function getJsxFactory(option?: { generator?: { generatorId?: IGe
               el.setCss(css);
             }
             const result = el.render(attributes || {}, children);
-
             for (const [name, val ] of Object.entries(el.buildDataForRender?.() || [])) {
               (result as any)[name] = val;
             }
@@ -39,23 +37,17 @@ export default function getJsxFactory(option?: { generator?: { generatorId?: IGe
               (result as any)[name] = val;
               result.attributes = attributes;
             }
-            // if (elementName.name === 'BookYear') {
-            //   console.log(elementName.name, result);
-            // }
-            // console.log(result);
             return result;
           }
         };
-        return result as unknown as JSX.Element;
+        return result;
       } else {
-        if (!(elementName as any)._id) {
-           (elementName as any)._id = crypto.randomUUID()+':'+(elementName.name || '');
-        }
+        const id = IgnisComp.setIdForFuncComponent(elementName);
         const result = {
           _build(context: ContextRender): JSX.Element {
-            const css = context[(elementName as any)._id]?.css;
+            const css = context[id]?.css;
             if (css) {
-              (elementName as any)._css = css;
+              (elementName as JSX.Element)._css = css;
             }
             const result = elementName(attributes || {}, children);
 
@@ -66,8 +58,7 @@ export default function getJsxFactory(option?: { generator?: { generatorId?: IGe
             return result;
           }
         };
-        // console.log(result);
-       return result as unknown as JSX.Element;
+       return result;
       }
     }
   };

@@ -1,5 +1,4 @@
 import { getJsxFactory, IgnisComp, IgnisHtmlPage, render, JSX, noEscape } from '../../src/index';
-import { JSXFabricPageWithDataForRender } from '../../src/jsx.type';
 
 
 describe('[IgnisHtmlPage]', () => {
@@ -227,7 +226,7 @@ describe('[IgnisHtmlPage]', () => {
   }
 
   it('whole page: with 2 children', () => {
-    const page: JSXFabricPageWithDataForRender = (
+    const page: JSX.ElementPage = (
       <HtmlPage
         // title='Test' description='Description' keywords='Keywords'
       >
@@ -249,7 +248,7 @@ describe('[IgnisHtmlPage]', () => {
   });
 
   it('whole page: with 1 child', () => {
-    const page: JSXFabricPageWithDataForRender = (
+    const page: JSX.ElementPage = (
       <HtmlPage
         // title='Test' description='Description' keywords='Keywords'
       >
@@ -274,7 +273,7 @@ describe('[IgnisHtmlPage]', () => {
       }
     }
 
-    const page: JSXFabricPageWithDataForRender = (
+    const page: JSX.ElementPage = (
       <HtmlPage>
         <p id={id} data-el-data={noEscape(JSON.stringify({ key: 'key', name: '<script></script>' }))}>
           The document is <a href="https://www.typescriptlang.org/docs/handbook/jsx.html">here</a>.
@@ -294,7 +293,7 @@ describe('[IgnisHtmlPage]', () => {
       }
     }
 
-    const page: JSXFabricPageWithDataForRender = (
+    const page: JSX.ElementPage = (
       <HtmlPage
         title='Test'
         keywords='Test'
@@ -364,7 +363,7 @@ describe('[IgnisHtmlPage]', () => {
         );
       }
     }
-    const page: JSXFabricPageWithDataForRender = (
+    const page: JSX.ElementPage = (
       <HtmlPage>
         <EscapeChildren/>
       </HtmlPage>

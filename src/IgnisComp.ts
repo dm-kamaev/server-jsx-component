@@ -1,4 +1,4 @@
-
+import * as crypto from 'node:crypto';
 import Script from './element/Script'
 import Link from './element/Link';
 import CssClass, { CssNode } from './element/CssClass';
@@ -95,8 +95,11 @@ export default class IgnisComp<Props, Children = any[], SharedData extends Recor
     fnComponent._headJs = undefined;
   }
 
-  static getIdForFuncComponent(fnComponent: (...arg) => JSX.Element) {
-    return  _getCallerFile()+':'+(fnComponent.name || '');
+  static setIdForFuncComponent(fnComponent: { (...arg): JSX.Element, _id?: string }) {
+    if (fnComponent._id) {
+      return fnComponent._id;
+    }
+    return fnComponent._id = crypto.randomUUID()+':'+(fnComponent.name || '');
   }
 
   static buildDataForRender(fnComponent: { (...arg): JSX.Element, _id: string; _css?: () => Array<Css>, _js?: (sharedData: Array<any>) => Array<Js>; _headJs?: (sharedData: Array<any>) => Array<Js>; _sharedData?: ShareData }) {

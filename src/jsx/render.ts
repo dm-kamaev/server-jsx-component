@@ -3,7 +3,7 @@ import CssClass from '../element/CssClass';
 import Minify from '../transform/Minify';
 import format from '../transform/format';
 
-import { JSX, Css, Js, JSXFabricPageWithDataForRender, JSXFabricElementWithDataForRender, JSXElementWithDataForRender, ContextRender } from '../jsx.type';
+import { JSX, Css, Js, ContextRender } from '../jsx.type';
 
 import { escape, escapeAttributes, NoEscape } from './escape';
 import { ID_IF_ELSEIF_ELSE, ID_SWITCH_CASE } from '../tpl';
@@ -31,21 +31,33 @@ export function toObject(
 
 
 function traverseToObject(
-  inputVnode: JSXFabricElementWithDataForRender | JSX.Element,
+  inputVnode: JSX.Element,
   escapeMode: boolean,
   context: ContextRender = {},
-) {
+): {
+    css: Array<Css>,
+    html: string;
+    getHeadJs: Array<{
+      id: string;
+      get: (sharedData: any[]) => Array<Js>;
+    }>,
+    getJs: Array<{
+      id: string;
+      get: (sharedData: any[]) => Array<Js>;
+    }>,
+    domId?: string
+ } {
   let css: Array<Css> = [];
   let getJs: Array<{ id: string; get: (sharedData: any[]) => Array<Js> }> = [];
   let getHeadJs: Array<{ id: string; get: (sharedData: any[]) => Array<Js> }> = [];
 
-  let vnode1: JSXFabricElementWithDataForRender | JSX.Element = inputVnode;
+  const vnode1: JSX.Element = inputVnode;
 
   if (typeof vnode1 !== 'object') {
     return { css, html: vnode1, getHeadJs, getJs };
   }
-
-  const vnode = (vnode1 as JSXFabricElementWithDataForRender)._build?.(context) || vnode1;
+  // console.log(vnode1);
+  const vnode =  vnode1._build?.(context) || vnode1;
   const { elementName, attributes, children: _children } = vnode;
   // console.log(vnode);
   // console.log(vnode, elementName, _children);
@@ -87,7 +99,7 @@ function traverseToObject(
     context[id].sharedData.push(sharedData);
   }
 
-  if ((vnode as JSXFabricElementWithDataForRender)._build && !elementName) {
+  if (vnode._build && !elementName) {
     const { css: _css, html, getHeadJs: _getHeadJs, getJs: _getJs } = traverseToObject(vnode, escapeMode, context);
     if (_css.length) {
       css = css.concat(_css);
@@ -131,7 +143,7 @@ function traverseToObject(
 };
 
 
-export function toHtmlPage(input: JSXFabricPageWithDataForRender, options: { escape: boolean }) {
+export function toHtmlPage(input: JSX.ElementPage, options: { escape: boolean }) {
   const context = {};
   // console.log('HERE', toObject(vnode, options.escape, context));
   // console.log('INPUT', vnode);
@@ -147,6 +159,7 @@ export function toHtmlPage(input: JSXFabricPageWithDataForRender, options: { esc
   let listJs: Array<Exclude<Js, JSX.Element>> = (vnode._js?.(vnode._sharedData).map(convertJsInlineToString(context)) || []);
   let listStyle: Array<Css> = vnode._css ? vnode._css : [];
 
+  // render components
   const el = toObject(vnode, options.escape, context);
   // console.log('el', el);
   // render components to string
@@ -189,13 +202,7 @@ export function toHtmlPage(input: JSXFabricPageWithDataForRender, options: { esc
 };
 
 
-export function toTurboHtml(vnode: JSXElementWithDataForRender, options: { targetElId?: string | number; escape: boolean, minify?: boolean }) {
-
-  // const { children } = vnode;
-
-  // console.dir(children, { depth: 10 });
-  // render components to string
-
+export function toTurboHtml(vnode: JSX.Element, options: { targetElId?: string | number; escape: boolean, minify?: boolean }) {
   const { html, css: listStyle, headJs: listHeadJs, js: listJs, domId } = toObject(vnode, options.escape);
 
   let id = options.targetElId;
@@ -206,8 +213,8 @@ export function toTurboHtml(vnode: JSXElementWithDataForRender, options: { targe
     }
   }
 
-  const js = format.js(listHeadJs.flat().concat(listJs.flat()));
-  const css = format.style(listStyle.flat());
+  const js = format.js(listHeadJs.concat(listJs));
+  const css = format.style(listStyle);
   const minify = new Minify(options.minify ?? false);
 
   return { id: id+'', html: minify.html(html), css: minify.style(css), js };
@@ -215,23 +222,21 @@ export function toTurboHtml(vnode: JSXElementWithDataForRender, options: { targe
 
 
 function convertJsInlineToString(context: ContextRender) {
-  return function ( input: string | Script | JSX.Element) {
+  return function (input: string | Script | JSX.Element) {
     if (typeof input === 'string' || input instanceof Script) {
       return input;
     } else {
-      const el: JSX.Element = (input as any)._build(context);
-      // console.log({ JSX: el });
+      const el = input._build?.(context) || input;
       if (el.attributes?.escape) {
-        el.children = el.children.map(item => escape(item));
+        el.children = el.children ? el.children.map(item => escape(item)) : el.children;
       }
-      // console.log({ el, children: el.children });
-      return `${el.children.join('')}`;
+      return `${(el.children || []).join('')}`;
     }
   };
 }
 
 
-function convertAttributesToString(inputAttributes: JSX.Attribute, escapeMode: boolean) {
+function convertAttributesToString(inputAttributes: JSX.Attribute | undefined, escapeMode: boolean) {
   if (!inputAttributes) {
     return '';
   }

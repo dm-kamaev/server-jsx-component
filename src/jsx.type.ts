@@ -6,7 +6,10 @@ import type Link from './element/Link';
 
 export interface ContextRender extends Record<string, { css: Array<Css>, sharedData: Array<any> }> {}
 
-export interface JSXElementWithDataForRender extends JSX.Element {
+export type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;
+
+
+interface ElementData {
   _id?: string;
   _css?: Array<Css>;
   _js?: (sharedData: any[]) => Array<Js>;
@@ -14,26 +17,20 @@ export interface JSXElementWithDataForRender extends JSX.Element {
   _sharedData?: any;
 }
 
-export interface JSXFabricElementWithDataForRender extends JSX.Element {
-  _build(context: ContextRender): JSXElementWithDataForRender;
+
+interface PageData {
+  _id: string;
+  _minify: boolean;
+  _htmlTag: string;
+  _head: string[];
+  _title: string;
+  _description: string;
+  _keywords: string;
+  _css?: Array<Css>;
+  _js?: (sharedData: any[]) => Array<Js>;
+  _headJs?: (sharedData: any[]) => Array<Js>;
+  _sharedData: any;
 }
-
-interface JSXPageWithDataForRender extends JSXElementWithDataForRender{
-  _minify?: boolean;
-  _htmlTag?: string;
-  _head?: string[];
-  _title?: string;
-  _description?: string;
-  _keywords?: string;
-}
-
-export interface JSXFabricPageWithDataForRender {
-  _build(context: ContextRender): JSXPageWithDataForRender;
-}
-
-export type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;
-
-
 
 export declare namespace JSX {
   export interface IComponent<P = {}, C = JSX.Children> {
@@ -42,25 +39,8 @@ export declare namespace JSX {
     render(props: Readonly<P> | P, children: C): JSX.Element;
     // ==== custom methods/fields ====
     setCss(css: Array<Css>): this;
-    buildDataForRender?(): {
-      _id: string;
-      _css: any[];
-      _js: (sharedData: any[]) => any[];
-      _headJs: (sharedData: any[]) => any[];
-      _sharedData: any;
-    };
-    buildDataForRenderPage?(): {
-      _id: string;
-      _minify: boolean;
-      _htmlTag: string;
-      _head: string[];
-      _title: string;
-      _description: string;
-      _keywords: string;
-      _js: (sharedData: any[]) => any[];
-      _headJs: (sharedData: any[]) => any[];
-      _sharedData: any;
-    }
+    buildDataForRender?(): ElementData;
+    buildDataForRenderPage?(): PageData;
   }
 
   export interface ClassComponent<P = {}> {
@@ -78,11 +58,28 @@ export declare namespace JSX {
 
   export type Children = Array<any>;
 
-  export type Element = {
-    elementName: ElementName;
-    attributes: Attribute;
-    children: Children;
-  };
+  interface JSXData {
+    elementName?: ElementName;
+    attributes?: Attribute;
+    children?: Children;
+  }
+
+  export interface Element extends JSXData, ElementData {
+    // ==== custom methods/fields ====
+    _build?: (context: ContextRender) => Element;
+    // _id?: string;
+    // _css?: Array<Css>;
+    // _js?: (sharedData: any[]) => Array<Js>;
+    // _headJs?: (sharedData: any[]) => Array<Js>;
+    // _sharedData?: any;
+  }
+
+  interface JSXElementPage extends JSXData, PageData {}
+
+  export interface ElementPage extends Element {
+    // ==== custom methods/fields ====
+    _build: (context: ContextRender) => JSXElementPage;
+  }
 
   export interface IntrinsicElements {
     [key: string]: any;

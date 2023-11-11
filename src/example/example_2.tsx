@@ -206,7 +206,7 @@ const books = [
   { id: 1, author: 'Leo Tolstoy', name: 'War and Peace', year: 1863 },
   { id: 2, author: 'Jack London', name: 'White Fang', year: 1906 }
 ];
-const htmlPage: JSX.Element = (
+const page: JSX.ElementPage = (
   <HtmlPage
   // title='Test' description='Description' keywords='Keywords'
   >
@@ -218,5 +218,5 @@ const htmlPage: JSX.Element = (
 );
 
 
-const html = render.toHtmlPage(htmlPage, { escape: true });
+const html = render.toHtmlPage(page, { escape: true });
 console.log(html);
